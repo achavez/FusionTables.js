@@ -46,7 +46,7 @@ ft.rows(success, error);
 Methods
 -----
 
-**`rows(success, error, where, limit, cols)`**
+####**`rows(success, error, where, limit, cols)`**
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - optional *object* `where`: can be used to filter the results: `{'column': 'First Name', 'value': 'John'}` would return any rows where the *First Name* column is *John*; can also include an optional `operator` property (see the Fusion Tables docs for supported operators); by default the operator is `=`
@@ -54,19 +54,19 @@ Methods
 - optional *array* `cols`: the columns to return data for
 - *array* **returns** an array of objects, each of which is a Fusion Tables row
 
-**`row(success, error, where, cols)`**
+####**`row(success, error, where, cols)`**
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *object* `where`: can be used to filter the results: `{'column': 'First Name', 'value': 'John'}` would return any rows where the *First Name* column is *John*; can also include an optional `operator` property (see the Fusion Tables docs for supported operators); by default the operator is `=`
 - optional *array* `cols`: the columns to return data for
 - *object* **returns** a single Fusion Tables row as an object
 
-**`columns(success, error)`**
+####**`columns(success, error)`**
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *array* **returns** all columns in the bale
 
-**`query(success, error, sql, parser)`**
+####**`query(success, error, sql, parser)`**
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *string* `sql`: a raw SQL string that will be URI-encoded and sent directly to the Fusion Tables API; to see what the API supports, see [https://developers.google.com/fusiontables/docs/v1/sql-reference#Select](https://developers.google.com/fusiontables/docs/v1/sql-reference#Select)
