@@ -1,0 +1,27 @@
+{
+  "name": "FusionTables.js",
+  "main": "FusionTables.min.js",
+  "version": "1.0.0",
+  "authors": [
+    "Andrew Chavez <adchavez@gmail.com>"
+  ],
+  "description": "Super simple Google Fusion Tables access using JavaScript",
+  "keywords": [
+    "Fusion",
+    "Tables",
+    "FusionTables"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/achavez/FusionTables.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "underscore": "~1.6.0",
+    "jquery": "^1.5"
+  }
+}
