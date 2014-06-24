@@ -31,17 +31,26 @@ FusionTables.prototype = {
 	// Send a request to the Fusion Tables v1.0 API and pass the results
 	// to the passed success and error functions
 	request: function(req, success, error, parser) {
-		$.ajax({
-			url: this.options.uri + req,
-			dataType: 'jsonp'
-		}).done(function(data) {
-			if(typeof parser == 'function') {
-				data = parser(data);
+		r = new XMLHttpRequest();
+		r.open('GET', this.options.uri + req, true);
+
+		r.onreadystatechange = function() {
+			if (this.readyState === 4) {
+				if (this.status >= 200 && this.status < 400) {
+					data = JSON.parse(this.responseText);
+					if(typeof parser == 'function') {
+						data = parser(data);
+					}
+					success(data);
+				}
+				else {
+					error(JSON.parse(this.responseText));
+				}
 			}
-			success(data);
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-			error(errorThrown);
-		});
+		};
+		r.send();
+
+		r = null;
 	},
 
 	// Transform the fusiontables#sqlresponse JSON response into an
