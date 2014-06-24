@@ -59,6 +59,14 @@ a:hover,
 .personal .level-2 i {
   margin-right: 2px;
 }
+/* Remove unnecessary line on first method */
+#fusiontables-js-methods-rows-success-error-where-limit-cols:before {
+  background: none;
+}
+#fusiontables-js-methods-rows-success-error-where-limit-cols {
+  padding-top: 40px;
+}
+/* Code */
 .content code,
 body.no-literate .content pre > code {
   background-color: #F8F8F8;
