@@ -30,7 +30,28 @@ FusionTables.prototype = {
 
 	// Send a request to the Fusion Tables v1.0 API and pass the results
 	// to the passed success and error functions
-	request: function(req, success, error, parser) {
+	request: function(endpoint, params, success, error, parser) {
+
+		var req = endpoint;
+
+		// Write individual querystring parameters
+		var qs = [];
+		if(params) {
+			_.each(params, function(value, key) {
+				qs.push(key + '=' + value);
+			});
+		}
+
+		// Sign request, if key's set
+		if(this.options.key) {
+			qs.push('key=' + this.options.key);
+		}
+
+		// Build querystring
+		if(qs) {
+			req += '?' + qs.join('&');
+		}
+
 		r = new XMLHttpRequest();
 		r.open('GET', this.options.uri + req, true);
 
@@ -126,34 +147,40 @@ FusionTables.prototype = {
 		}
 		var sql = query.join(' ');
 		// Build that ish
-		return 'query?sql=' + encodeURIComponent(sql) +
-			'&typed=true&hdrs=false' + '&key=' + this.options.key;
+		var params = {
+			'sql': encodeURIComponent(sql),
+			'typed': true,
+			'hdrs': false
+		}
+		return params;
 	},
 
 	// Fetch a single row
 	row: function(success, error, where, cols) {
-		var query = this.sqlQuery(where, 1, cols);
-		this.request(query, success, error, this.rowParser);
+		var params = this.sqlQuery(where, 1, cols);
+		this.request('query', params, success, error, this.rowParser);
 	},
 
 	// Fetch all rows in the table
 	rows: function(success, error, where, limit, cols) {
-		var query = this.sqlQuery(where, limit, cols);
-		this.request(query, success, error, this.rowsParser);
+		var params = this.sqlQuery(where, limit, cols);
+		this.request('query', params, success, error, this.rowsParser);
 	},
 
 	// Fetch an array of columns in the table
 	columns: function(success, error) {
-		var req = 'tables/' + this.options.tableId + '/columns' +
-			'?key=' + this.options.key;
-		this.request(req, success, error, this.columnParser);
+		var endpoint = 'tables/' + this.options.tableId + '/columns';
+		this.request(endpoint, null, success, error, this.columnParser);
 	},
 
 	// Pass a raw SQL query with an optional custom parser
 	query: function(success, error, sql, parser) {
-		var req = 'query?sql=' + encodeURIComponent(sql) +
-			'&typed=true&hdrs=false' + '&key=' + this.options.key;
-		this.request(req, success, error, parser);
+		var params = {
+			'sql': encodeURIComponent(sql),
+			'typed': true,
+			'hdrs': false
+		};
+		this.request('query', params, success, error, parser);
 	}
 
 };
