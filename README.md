@@ -1,7 +1,7 @@
 FusionTables.js
 =====
 
-The FusionTables.js allows you to retrieve data from the [Google Fusion Tables API v1.0](https://developers.google.com/fusiontables/docs/v1/getting_started) using a few lines of JavaScript.
+FusionTables.js allows you to retrieve data from the [Google Fusion Tables API v1.0](https://developers.google.com/fusiontables/docs/v1/getting_started) using a few lines of JavaScript.
 
 Usage
 -----
@@ -12,9 +12,10 @@ You'll need two pieces of information to get your data out of Fusion Tables:
 
 You'll also need to ensure that you're Fusion Table is published and accessible. Do that by going to Tools > Share and changing the visiblity to either *Anyone with the link* or *Public on the web*.
 
-Be sure to include `fusiontables.min.js` as well as the one dependency -- [Underscore.js](https://github.com/jashkenas/underscore/) -- in your HTML file:
+Be sure to include `fusiontables.min.js` as well as its two dependencies -- [Underscore.js](https://github.com/jashkenas/underscore/) and [jQuery](https://github.com/jquery/jquery) -- in your HTML file:
 
 ```html
+<script src="/path/to/jquery.min.js"></script>
 <script src="/path/to/underscore-min.js"></script>
 <script src="/path/to/fusiontables.min.js"></script>
 ```

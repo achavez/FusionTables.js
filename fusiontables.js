@@ -19,11 +19,14 @@
 // Constructor function
 function FusionTables(options) {
 	this.options = options || {};
-	if(!this.options.key || !this.options.tableId) {
-		throw new Error('A Fusion Tables Table ID and API key are required.');
+	if(!this.options.tableId) {
+		throw new Error('A Fusion Tables Table ID is required.');
+	}
+	if(!this.options.key && !this.options.proxy) {
+		throw new Error('Either an API key or a URL to a proxy that will sign your requests is required.');
 	}
 	this.options.columns = this.options.columns || [];
-	this.options.uri = this.options.uri || 'https://www.googleapis.com/fusiontables/v1/';
+	this.options.uri = this.options.proxy || 'https://www.googleapis.com/';
 };
 
 FusionTables.prototype = {
@@ -32,46 +35,40 @@ FusionTables.prototype = {
 	// to the passed success and error functions
 	request: function(endpoint, params, success, error, parser) {
 
-		var req = endpoint;
-
-		// Write individual querystring parameters
-		var qs = [];
-		if(params) {
-			_.each(params, function(value, key) {
-				qs.push(key + '=' + value);
-			});
-		}
+		var req = 'fusiontables/v1/' + endpoint;
+		params = params || {};
 
 		// Sign request, if key's set
 		if(this.options.key) {
-			qs.push('key=' + this.options.key);
+			params.key = this.options.key;
 		}
 
-		// Build querystring
-		if(qs) {
-			req += '?' + qs.join('&');
-		}
-
-		r = new XMLHttpRequest();
-		r.open('GET', this.options.uri + req, true);
-
-		r.onreadystatechange = function() {
-			if (this.readyState === 4) {
-				if (this.status >= 200 && this.status < 400) {
-					data = JSON.parse(this.responseText);
-					if(typeof parser == 'function') {
-						data = parser(data);
-					}
-					success(data);
-				}
-				else {
-					error(JSON.parse(this.responseText));
-				}
-			}
+		// Setup the request options
+		var ajax_options = {
+			url: this.options.uri + req,
+			contentType: 'application/json',
+			data: params
 		};
-		r.send();
 
-		r = null;
+		// Use JSONP if there's no proxy
+		if(!this.options.proxy) {
+			ajax_options.dataType = 'jsonp';
+		}
+		else {
+			ajax_options.dataType = 'json';
+		}
+
+		// Make the request, parse the response and
+		// hand it off to the callback function
+		$.ajax(ajax_options).done(function(data) {
+			if(typeof parser == 'function') {
+				data = parser(data);
+			}
+			success(data);
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			error(errorThrown);
+		});
+
 	},
 
 	// Transform the fusiontables#sqlresponse JSON response into an
@@ -80,12 +77,10 @@ FusionTables.prototype = {
 		return _.map(data.rows, function(row){
 			var rowObj = {};
 			_.each(row, function(el, index) {
-				if(data.columns[index] != 'rowid') {
-					rowObj[data.columns[index]] = el;
+				if(data.columns[index] == 'rowid') {
+					el = parseInt(el, 10);
 				}
-				else {
-					rowObj.id = parseInt(el, 10);
-				}
+				rowObj[data.columns[index]] = el;
 			});
 			return rowObj;
 		});
@@ -148,7 +143,7 @@ FusionTables.prototype = {
 		var sql = query.join(' ');
 		// Build that ish
 		var params = {
-			'sql': encodeURIComponent(sql),
+			'sql': sql,
 			'typed': true,
 			'hdrs': false
 		}
@@ -176,7 +171,7 @@ FusionTables.prototype = {
 	// Pass a raw SQL query with an optional custom parser
 	query: function(success, error, sql, parser) {
 		var params = {
-			'sql': encodeURIComponent(sql),
+			'sql': sql,
 			'typed': true,
 			'hdrs': false
 		};
