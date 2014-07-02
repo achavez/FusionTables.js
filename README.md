@@ -1,6 +1,8 @@
 FusionTables.js
 =====
 
+[![GitHub version](https://badge.fury.io/gh/achavez%2FFusionTables.js.svg)](http://badge.fury.io/gh/achavez%2FFusionTables.js)
+
 FusionTables.js allows you to retrieve data from the [Google Fusion Tables API v1.0](https://developers.google.com/fusiontables/docs/v1/getting_started) using a few lines of JavaScript.
 
 Usage
