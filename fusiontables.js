@@ -9,173 +9,187 @@
  * ||____|              |
  *  ————————————————————
  *
- * FusionTables.js v1.0.0
+ * FusionTables.js v1.1.1
  * https://github.com/achavez/FusionTables.js
  *
  * Copyright (c) 2014 Andrew Chavez
  * Licensed under the MIT license.
  */
 
-// Constructor function
-function FusionTables(options) {
-	this.options = options || {};
-	if(!this.options.tableId) {
-		throw new Error('A Fusion Tables Table ID is required.');
-	}
-	if(!this.options.key && !this.options.proxy) {
-		throw new Error('Either an API key or a URL to a proxy that will sign your requests is required.');
-	}
-	this.options.columns = this.options.columns || [];
-	this.options.uri = this.options.proxy || 'https://www.googleapis.com/';
-};
+// Implement AMD and export FusionTables, if AMD is
+// being used on the page
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['jquery', 'underscore'], factory);
+    } else {
+        FusionTables = factory(j, u);
+    }
+}(this, function ($, _) {
 
-FusionTables.prototype = {
+    // Constructor function
+    function FusionTables(options) {
+        this.options = options || {};
+        if(!this.options.tableId) {
+            throw new Error('A Fusion Tables Table ID is required.');
+        }
+        if(!this.options.key && !this.options.proxy) {
+            throw new Error('Either an API key or a URL to a proxy that will sign your requests is required.');
+        }
+        this.options.columns = this.options.columns || [];
+        this.options.uri = this.options.proxy || 'https://www.googleapis.com/';
+    };
 
-	// Send a request to the Fusion Tables v1.0 API and pass the results
-	// to the passed success and error functions
-	request: function(endpoint, params, success, error, parser) {
+    FusionTables.prototype = {
 
-		var req = 'fusiontables/v1/' + endpoint;
-		params = params || {};
+        // Send a request to the Fusion Tables v1.0 API and pass the results
+        // to the passed success and error functions
+        request: function(endpoint, params, success, error, parser) {
 
-		// Sign request, if key's set
-		if(this.options.key) {
-			params.key = this.options.key;
-		}
+            var req = 'fusiontables/v1/' + endpoint;
+            params = params || {};
 
-		// Setup the request options
-		var ajax_options = {
-			url: this.options.uri + req,
-			contentType: 'application/json',
-			data: params
-		};
+            // Sign request, if key's set
+            if(this.options.key) {
+                params.key = this.options.key;
+            }
 
-		// Use JSONP if there's no proxy
-		if(!this.options.proxy) {
-			ajax_options.dataType = 'jsonp';
-		}
-		else {
-			ajax_options.dataType = 'json';
-		}
+            // Setup the request options
+            var ajax_options = {
+                url: this.options.uri + req,
+                contentType: 'application/json',
+                data: params
+            };
 
-		// Make the request, parse the response and
-		// hand it off to the callback function
-		$.ajax(ajax_options).done(function(data) {
-			if(typeof parser == 'function') {
-				data = parser(data);
-			}
-			success(data);
-		}).fail(function(jqXHR, textStatus, errorThrown) {
-			error(errorThrown);
-		});
+            // Use JSONP if there's no proxy
+            if(!this.options.proxy) {
+                ajax_options.dataType = 'jsonp';
+            }
+            else {
+                ajax_options.dataType = 'json';
+            }
 
-	},
+            // Make the request, parse the response and
+            // hand it off to the callback function
+            $.ajax(ajax_options).done(function(data) {
+                if(typeof parser == 'function') {
+                    data = parser(data);
+                }
+                success(data);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                error(errorThrown);
+            });
 
-	// Transform the fusiontables#sqlresponse JSON response into an
-	// array of JavaScript objects
-	rowsParser: function(data) {
-		return _.map(data.rows, function(row){
-			var rowObj = {};
-			_.each(row, function(el, index) {
-				if(data.columns[index] == 'rowid') {
-					el = parseInt(el, 10);
-				}
-				rowObj[data.columns[index]] = el;
-			});
-			return rowObj;
-		});
-	},
+        },
 
-	// Transform the fusiontables#sqlresponse JSON response into a
-	// single JavaScript object
-	rowParser: function(data) {
-		var rowObj = {};
-		_.each(data.rows[0], function(el, index) {
-			if(data.columns[index] == 'rowid') {
-				el = parseInt(el, 10);
-			}
-			rowObj[data.columns[index]] = el;
-		});
-		return rowObj;
-	},
+        // Transform the fusiontables#sqlresponse JSON response into an
+        // array of JavaScript objects
+        rowsParser: function(data) {
+            return _.map(data.rows, function(row){
+                var rowObj = {};
+                _.each(row, function(el, index) {
+                    if(data.columns[index] == 'rowid') {
+                        el = parseInt(el, 10);
+                    }
+                    rowObj[data.columns[index]] = el;
+                });
+                return rowObj;
+            });
+        },
 
-	// Transform the fusiontables#columnList JSON response
-	// into an array of column names
-	columnParser: function(data) {
-		return _.pluck(data.items, 'name');
-	},
+        // Transform the fusiontables#sqlresponse JSON response into a
+        // single JavaScript object
+        rowParser: function(data) {
+            var rowObj = {};
+            _.each(data.rows[0], function(el, index) {
+                if(data.columns[index] == 'rowid') {
+                    el = parseInt(el, 10);
+                }
+                rowObj[data.columns[index]] = el;
+            });
+            return rowObj;
+        },
 
-	// SQL SELECT string builder
-	sqlSelect: function(cols) {
-		cols = cols || this.options.columns;
-		if(cols != ['*'] && !_.contains(cols, 'ROWID')) {
-			cols.push('ROWID');
-		}
-		return 'SELECT ' + cols.join(', ') + ' FROM ' + this.options.tableId;
-	},
+        // Transform the fusiontables#columnList JSON response
+        // into an array of column names
+        columnParser: function(data) {
+            return _.pluck(data.items, 'name');
+        },
 
-	// SQL WHERE string builder
-	// Operator is optional
-	sqlWhere: function(column, value, operator) {
-		if(!column || !value) {
-			throw new Error('The column and value properties are required in the where object.');
-		}
-		operator = operator || '=';
-		return 'WHERE ' + column + ' ' + operator + ' ' + value;
-	},
+        // SQL SELECT string builder
+        sqlSelect: function(cols) {
+            cols = cols || this.options.columns;
+            if(cols != ['*'] && !_.contains(cols, 'ROWID')) {
+                cols.push('ROWID');
+            }
+            return 'SELECT ' + cols.join(', ') + ' FROM ' + this.options.tableId;
+        },
 
-	// SQL LIMIT string builder
-	sqlLimit: function(limit) {
-		return 'LIMIT ' + limit;
-	},
+        // SQL WHERE string builder
+        // Operator is optional
+        sqlWhere: function(column, value, operator) {
+            if(!column || !value) {
+                throw new Error('The column and value properties are required in the where object.');
+            }
+            operator = operator || '=';
+            return 'WHERE ' + column + ' ' + operator + ' ' + value;
+        },
 
-	// Builds a SQL query out of all the provided pieces:
-	// SELECT, WHERE, LIMIT, etc.
-	// More info: https://developers.google.com/fusiontables/docs/v1/sql-reference
-	sqlQuery: function(where, limit, cols) {
-		var query = [this.sqlSelect(cols)];
-		if(where) {
-			query.push(this.sqlWhere(where.column, where.value, where.operator));
-		}
-		if(limit) {
-			query.push(this.sqlLimit(limit));
-		}
-		var sql = query.join(' ');
-		// Build that ish
-		var params = {
-			'sql': sql,
-			'typed': true,
-			'hdrs': false
-		}
-		return params;
-	},
+        // SQL LIMIT string builder
+        sqlLimit: function(limit) {
+            return 'LIMIT ' + limit;
+        },
 
-	// Fetch a single row
-	row: function(success, error, where, cols) {
-		var params = this.sqlQuery(where, 1, cols);
-		this.request('query', params, success, error, this.rowParser);
-	},
+        // Builds a SQL query out of all the provided pieces:
+        // SELECT, WHERE, LIMIT, etc.
+        // More info: https://developers.google.com/fusiontables/docs/v1/sql-reference
+        sqlQuery: function(where, limit, cols) {
+            var query = [this.sqlSelect(cols)];
+            if(where) {
+                query.push(this.sqlWhere(where.column, where.value, where.operator));
+            }
+            if(limit) {
+                query.push(this.sqlLimit(limit));
+            }
+            var sql = query.join(' ');
+            // Build that ish
+            var params = {
+                'sql': sql,
+                'typed': true,
+                'hdrs': false
+            }
+            return params;
+        },
 
-	// Fetch all rows in the table
-	rows: function(success, error, where, limit, cols) {
-		var params = this.sqlQuery(where, limit, cols);
-		this.request('query', params, success, error, this.rowsParser);
-	},
+        // Fetch a single row
+        row: function(success, error, where, cols) {
+            var params = this.sqlQuery(where, 1, cols);
+            this.request('query', params, success, error, this.rowParser);
+        },
 
-	// Fetch an array of columns in the table
-	columns: function(success, error) {
-		var endpoint = 'tables/' + this.options.tableId + '/columns';
-		this.request(endpoint, null, success, error, this.columnParser);
-	},
+        // Fetch all rows in the table
+        rows: function(success, error, where, limit, cols) {
+            var params = this.sqlQuery(where, limit, cols);
+            this.request('query', params, success, error, this.rowsParser);
+        },
 
-	// Pass a raw SQL query with an optional custom parser
-	query: function(success, error, sql, parser) {
-		var params = {
-			'sql': sql,
-			'typed': true,
-			'hdrs': false
-		};
-		this.request('query', params, success, error, parser);
-	}
+        // Fetch an array of columns in the table
+        columns: function(success, error) {
+            var endpoint = 'tables/' + this.options.tableId + '/columns';
+            this.request(endpoint, null, success, error, this.columnParser);
+        },
 
-};
+        // Pass a raw SQL query with an optional custom parser
+        query: function(success, error, sql, parser) {
+            var params = {
+                'sql': sql,
+                'typed': true,
+                'hdrs': false
+            };
+            this.request('query', params, success, error, parser);
+        }
+
+    };
+
+    return FusionTables;
+
+}));

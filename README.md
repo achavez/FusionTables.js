@@ -22,6 +22,8 @@ Be sure to include `fusiontables.min.js` as well as its two dependencies -- [Und
 <script src="/path/to/fusiontables.min.js"></script>
 ```
 
+If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class.
+
 Next, create a new `FusionTables` instance and pass in an object with your API key, Table ID and an array with the columns you'd like included. The columns property is optional and the `ROWID` will automatically be appended unless you pass in a `*`:
 
 ```javascript
