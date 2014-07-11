@@ -100,6 +100,9 @@
         // Transform the fusiontables#sqlresponse JSON response into an
         // array of JavaScript objects
         rowsParser: function (data) {
+            if(!data.rows) {
+                return null;
+            }
             return _.map(data.rows, function (row) {
                 var rowObj = {};
                 _.each(row, function (el, index) {
@@ -115,6 +118,9 @@
         // Transform the fusiontables#sqlresponse JSON response into a
         // single JavaScript object
         rowParser: function (data) {
+            if(!data.rows) {
+                return null;
+            }
             var rowObj = {};
             _.each(data.rows[0], function (el, index) {
                 if (data.columns[index] === 'rowid') {
@@ -180,38 +186,38 @@
             if (typeof where === 'undefined') {
                 throw new Error('The where clause is required when calling FusionTables.row');
             }
-            var options = options || {},
-                parser = options.parser || this.rowParser,
-                params = this.sqlQuery(where, 1, options.columns);
-            this.request('query', params, success, error, parser, options.cache);
+            var opts = options || {},
+                parser = opts.parser || this.rowParser,
+                params = this.sqlQuery(where, 1, opts.columns);
+            this.request('query', params, success, error, parser, opts.cache);
         },
 
         // Fetch all rows in the table
         rows: function (success, error, where, options) {
-            var options = options || {},
-                parser = options.parser || this.rowsParser,
-                params = this.sqlQuery(where, options.limit, options.columns);
-            this.request('query', params, success, error, parser, options.cache);
+            var opts = options || {},
+                parser = opts.parser || this.rowsParser,
+                params = this.sqlQuery(where, opts.limit, opts.columns);
+            this.request('query', params, success, error, parser, opts.cache);
         },
 
         // Fetch an array of columns in the table
         columns: function (success, error, options) {
-            var options = options || {},
-                parser = options.parser || this.columnParser,
-                endpoint = 'tables/' + this.options.tableId + '/columns';
-            this.request(endpoint, null, success, error, parser, options.cache);
+            var opts = options || {},
+                parser = opts.parser || this.columnParser,
+                endpoint = 'tables/' + this.opts.tableId + '/columns';
+            this.request(endpoint, null, success, error, parser, opts.cache);
         },
 
         // Pass a raw SQL query with an optional custom parser
         query: function (success, error, sql, options) {
-            var options = options || {},
-                parser = options.parser || this.rowsParser,
+            var opts = options || {},
+                parser = opts.parser || this.rowsParser,
                 params = {
                     'sql': sql,
                     'typed': true,
                     'hdrs': false
                 };
-            this.request('query', params, success, error, parser, options.cache);
+            this.request('query', params, success, error, parser, opts.cache);
         }
 
     };

@@ -7,7 +7,7 @@ FusionTables.js allows you to retrieve data from the [Google Fusion Tables API v
 
 Usage
 -----
-You'll need two pieces of information to get your data out of Fusion Tables:
+For the most basic usage you'll need two pieces of information to get your data out of Fusion Tables:
 
 - **Table ID**: An encryped string value that identifies your table (should look something like `1e7y6mtqv891111111111_aaaaaaaaa_CvWhg9gc`). You can get the Table ID by going to File > About in the Fusion Tables Web app.
 - **Fusion Tables API key**: You can obtain an API key from the Google Developers Console. The Fusion Tables API documentation has a step-by-step guide for obtaining a key: [https://developers.google.com/fusiontables/docs/v1/using#APIKey](https://developers.google.com/fusiontables/docs/v1/using#APIKey)
@@ -50,7 +50,7 @@ ft.rows(success, error);
 Methods
 -----
 
-###**`rows(success, error, where, limit, cols)`**
+###`rows(success, error, where, limit, cols)`
 #####Usage
 Fetch all rows from Fusion Tables or a subset of rows using a `WHERE` clause.
 #####Parameters
@@ -61,7 +61,7 @@ Fetch all rows from Fusion Tables or a subset of rows using a `WHERE` clause.
 - optional *array* `cols`: the columns to return data for
 - *array* **returns** an array of objects, each of which is a Fusion Tables row
 
-###**`row(success, error, where, cols)`**
+###`row(success, error, where, cols)`
 #####Usage
 Fetch a single row from the Fusion Table, using a `WHERE` clause to fetch the specific row you're looking for.
 #####Parameters
@@ -71,7 +71,7 @@ Fetch a single row from the Fusion Table, using a `WHERE` clause to fetch the sp
 - optional *array* `cols`: the columns to return data for
 - *object* **returns** a single Fusion Tables row as an object
 
-###**`columns(success, error)`**
+###`columns(success, error)`
 #####Usage
 Fetch a list of columns that are available in the table. This could theoretically be used to set the list of default columns for the instance or as a parameter for one of the other methods, but that's probably a bad idea because it's an unnecessary API call.
 #####Parameters
@@ -79,7 +79,7 @@ Fetch a list of columns that are available in the table. This could theoreticall
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *array* **returns** all columns in the bale
 
-###**`query(success, error, sql, parser)`**
+###`query(success, error, sql, parser)`
 #####Usage
 Run a query using custom SQL and (optionally) a custom parser for the data returned by Fusion Tables. This will allow you to use `GROUP BY`, `ORDER BY` and other more advanced SQL.
 #####Parameters
@@ -88,6 +88,47 @@ Run a query using custom SQL and (optionally) a custom parser for the data retur
 - *string* `sql`: a raw SQL string that will be URI-encoded and sent directly to the Fusion Tables API; to see what the API supports, see [https://developers.google.com/fusiontables/docs/v1/sql-reference#Select](https://developers.google.com/fusiontables/docs/v1/sql-reference#Select)
 - optional *function* `parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
 - *fusiontables#sqlresponse object* **returns** the raw response from the Fusion Tables API -- unless you've overriden the parser function, in which case it'll return whatever your parser returns; if you want to use rows like the other methods, just pass it the `rowParser`
+
+Proxying and caching requests
+-----
+
+**Simple proxy usage**
+
+It's possible to proxy requests by setting a `proxy` value in the `options` object that's past to the `FusionTables` constructor. When doing so, there's no need to pass a `key` value because the proxy should handle request signing.
+
+Example:
+
+```javascript
+var ft = new FusionTables({
+  tableId: 'YOUR_TABLE_ID',
+  proxy: 'https://your-proxy.com/'
+  columns: ["First Name", "Last Name"]
+});
+```
+
+There's a Node.js-based proxy, [FusionTables-proxy](https://github.com/achavez/FusionTables-proxy), that is built specifically for use with this 
+
+Requests passed to the proxy will be exactly the same as those sent to the Google Fusion Tables API, except the base URL will be changed to the proxy URL and the key will not be passed, even if it was set when you instantiated your table.
+
+**Requesting cached data**
+
+When using FusionTables-proxy it's possible to ask the proxy to store data from Fusion Tables in the proxy's Redis-backed cache. If you want to cache all requests by default, you can specify that when constructing the instance by passing the `cache` paramter:
+
+```javascript
+var ft = new FusionTables({
+  tableId: 'YOUR_TABLE_ID',
+  proxy: 'https://your-proxy.com/',
+  cache: true,
+  columns: ["First Name", "Last Name"]
+});
+```
+
+Caching can also be disabled/enabled on a per-request basis by passing setting `cache` in a call's `options` parameter: 
+
+```javascript
+ft.columns(success, error, {cache: true}); // enable the cache for this request
+ft.columns(success, error, {cache: false}); // disable for this one, even if it was set on instantiation of ft
+```
 
 License
 -----
