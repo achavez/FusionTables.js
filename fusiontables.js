@@ -22,7 +22,7 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery', 'underscore'], factory);
     } else {
-        FusionTables = factory($, _);
+        root.FusionTables = factory($, _);
     }
 }(this, function ($, _) {
 
@@ -204,7 +204,7 @@
         columns: function (success, error, options) {
             var opts = options || {},
                 parser = opts.parser || this.columnParser,
-                endpoint = 'tables/' + this.opts.tableId + '/columns';
+                endpoint = 'tables/' + this.options.tableId + '/columns';
             this.request(endpoint, null, success, error, parser, opts.cache);
         },
 
