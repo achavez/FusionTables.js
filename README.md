@@ -14,7 +14,7 @@ For the most basic usage you'll need two pieces of information to get your data 
 
 You'll also need to ensure that you're Fusion Table is published and accessible. Do that by going to Tools > Share and changing the visiblity to either *Anyone with the link* or *Public on the web*.
 
-Be sure to include `fusiontables.min.js` as well as its two dependencies -- [Underscore.js](https://github.com/jashkenas/underscore/) and [jQuery](https://github.com/jquery/jquery) -- in your HTML file:
+Be sure to include `[fusiontables.min.js](https://github.com/achavez/FusionTables.js/blob/master/fusiontables.min.js)` as well as its two dependencies -- [Underscore.js](https://github.com/jashkenas/underscore/) and [jQuery](https://github.com/jquery/jquery) -- in your HTML file:
 
 ```html
 <script src="/path/to/jquery.min.js"></script>
@@ -22,7 +22,7 @@ Be sure to include `fusiontables.min.js` as well as its two dependencies -- [Und
 <script src="/path/to/fusiontables.min.js"></script>
 ```
 
-If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class.
+If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class and delcares `jquery` and `underscore` as dependencies.
 
 Next, create a new `FusionTables` instance and pass in an object with your API key, Table ID and an array with the columns you'd like included. The columns property is optional and the `ROWID` will automatically be appended unless you pass in a `*`:
 
@@ -50,43 +50,50 @@ ft.rows(success, error);
 Methods
 -----
 
-###`rows(success, error, where, limit, cols)`
+###`rows(success, error, where, options)`
 #####Usage
 Fetch all rows from Fusion Tables or a subset of rows using a `WHERE` clause.
 #####Parameters
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - optional *object* `where`: can be used to filter the results: `{'column': 'First Name', 'value': 'John'}` would return any rows where the *First Name* column is *John*; can also include an optional `operator` property (see the Fusion Tables docs for supported operators); by default the operator is `=`
-- optional *number* `limit`: the maximum number of rows to retrieve
-- optional *array* `cols`: the columns to return data for
-- *array* **returns** an array of objects, each of which is a Fusion Tables row
+- optional *number* `options.limit`: the maximum number of rows to retrieve
+- optional *array* `options.columns`: the columns to return data for
+- optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
+- optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
+- *array* **returns** an array of objects, each of which is a Fusion Tables row, or `null` if there are no matching rows
 
-###`row(success, error, where, cols)`
+###`row(success, error, where, options)`
 #####Usage
 Fetch a single row from the Fusion Table, using a `WHERE` clause to fetch the specific row you're looking for.
 #####Parameters
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *object* `where`: can be used to filter the results: `{'column': 'First Name', 'value': 'John'}` would return any rows where the *First Name* column is *John*; can also include an optional `operator` property (see the Fusion Tables docs for supported operators); by default the operator is `=`
-- optional *array* `cols`: the columns to return data for
-- *object* **returns** a single Fusion Tables row as an object
+- optional *array* `options.columns`: the columns to return data for
+- optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
+- optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
+- *object* **returns** a single Fusion Tables row as an object or `null` if there's no match 
 
-###`columns(success, error)`
+###`columns(success, error, options)`
 #####Usage
 Fetch a list of columns that are available in the table. This could theoretically be used to set the list of default columns for the instance or as a parameter for one of the other methods, but that's probably a bad idea because it's an unnecessary API call.
 #####Parameters
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
-- *array* **returns** all columns in the bale
+- optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
+- optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
+- *array* **returns** all columns in the table
 
-###`query(success, error, sql, parser)`
+###`query(success, error, sql, options)`
 #####Usage
 Run a query using custom SQL and (optionally) a custom parser for the data returned by Fusion Tables. This will allow you to use `GROUP BY`, `ORDER BY` and other more advanced SQL.
 #####Parameters
 - *function* `success`: a function that will be passed a single argument with the parsed response from the Google Fusion Tables API
 - *function* `error`: a function that will be passed a single argument with any errors from the Fusion Tables API
 - *string* `sql`: a raw SQL string that will be URI-encoded and sent directly to the Fusion Tables API; to see what the API supports, see [https://developers.google.com/fusiontables/docs/v1/sql-reference#Select](https://developers.google.com/fusiontables/docs/v1/sql-reference#Select)
-- optional *function* `parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
+- optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
+- optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
 - *fusiontables#sqlresponse object* **returns** the raw response from the Fusion Tables API -- unless you've overriden the parser function, in which case it'll return whatever your parser returns; if you want to use rows like the other methods, just pass it the `rowParser`
 
 Proxying and caching requests
