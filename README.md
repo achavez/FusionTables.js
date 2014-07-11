@@ -96,10 +96,68 @@ Run a query using custom SQL and (optionally) a custom parser for the data retur
 - optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
 - *fusiontables#sqlresponse object* **returns** the raw response from the Fusion Tables API -- unless you've overriden the parser function, in which case it'll return whatever your parser returns; if you want to use rows like the other methods, just pass it the `rowParser`
 
-Proxying and caching requests
+Backbone.FusionTables
 -----
 
-**Simple proxy usage**
+This repository also includes a [Backbone.js driver](https://github.com/achavez/FusionTables.js/blob/master/backbone.fusiontables.js) that works for collections and models. Models are fetched using the row number, which is also used as the model's `ID`.
+
+Any options used with FusionTables.js can be passed to Backbone.FusionTables, including cache settings on a per-request or global basis and request proxying.
+
+To use the drive, create a `FusionTables` instance to pass to the drive. It works exactly the same as usual, except the `columns` property is required:
+
+```javascript
+// Initialize FusionTables.js
+var ft = new FusionTables({
+  key: 'YOUR_API_KEY',
+  tableId: 'YOUR_TABLE_ID', 
+  columns: ['ISBN', 'Title', 'Author', 'Pages'] // required with Backbone.FusionTables
+});
+```
+
+Then, when creating your models and collections, pass your `FusionTables` instance with the `table` property and set `sync`:
+
+```javascript
+var Book = Backbone.Model.extend({
+  idAttribute: 'rowid', // specify rowid as the model ID
+  table: ft,
+  sync: Backbone.FusionTables
+});
+
+var Library = Backbone.Collection.extend({
+  model: Book,
+  table: ft,
+  sync: Backbone.FusionTables
+});
+```
+
+Now you can populate your collection and render the data:
+
+```javascript
+var library = new Library();
+library.fetch({
+  success: function(data) {
+    console.log(data.toJSON());
+  },
+  error: function(error) { // optional
+    console.log(error);
+  },
+  where: { // optional, see .rows for details
+    column: 'rowid',
+    value: 1,
+    operator: '>' // optional, defaults to =
+  },
+  options: { // optional, see .rows for details
+    limit: 15
+  }
+});
+```
+
+All that is required when calling `.fetch()` is a `success` function. Everything else is optional. Because the driver is just calling the [`rows`](#rowssuccess-error-where-options) method, anything supported by that method can be passed here, as shown above.
+
+Backbone.FusionTables implements AMD and specifies `['backbone']` as its only dependency and returns `Backbone` with `Backbone.FusionTables` added in.
+
+Proxying requests
+-----
 
 It's possible to proxy requests by setting a `proxy` value in the `options` object that's past to the `FusionTables` constructor. When doing so, there's no need to pass a `key` value because the proxy should handle request signing.
 
@@ -113,13 +171,14 @@ var ft = new FusionTables({
 });
 ```
 
-There's a Node.js-based proxy, [FusionTables-proxy](https://github.com/achavez/FusionTables-proxy), that is built specifically for use with this 
+There's a Node.js-based proxy, [FusionTables-proxy](https://github.com/achavez/FusionTables-proxy), that is built specifically for use with this library.
 
 Requests passed to the proxy will be exactly the same as those sent to the Google Fusion Tables API, except the base URL will be changed to the proxy URL and the key will not be passed, even if it was set when you instantiated your table.
 
-**Requesting cached data**
+Fetching cached data
+-----
 
-When using FusionTables-proxy it's possible to ask the proxy to store data from Fusion Tables in the proxy's Redis-backed cache. If you want to cache all requests by default, you can specify that when constructing the instance by passing the `cache` paramter:
+When using [FusionTables-proxy](https://github.com/achavez/FusionTables-proxy) it's possible to ask the proxy to store data from Fusion Tables in the proxy's Redis-backed cache. If you want to cache all requests by default, you can specify that when constructing the instance by passing the `cache` paramter:
 
 ```javascript
 var ft = new FusionTables({

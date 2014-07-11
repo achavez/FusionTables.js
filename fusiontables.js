@@ -9,7 +9,7 @@
  * ||____|              |
  *  ————————————————————
  *
- * FusionTables.js v1.1.1
+ * FusionTables.js v1.2.0
  * https://github.com/achavez/FusionTables.js
  *
  * Copyright (c) 2014 Andrew Chavez

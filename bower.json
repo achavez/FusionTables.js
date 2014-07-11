@@ -1,18 +1,18 @@
 {
   "name": "FusionTables.js",
-  "main": "FusionTables.min.js",
-  "version": "1.1.0",
+  "main": "dist/fusiontables.min.js",
+  "version": "1.2.0",
   "authors": [
     "Andrew Chavez <adchavez@gmail.com>"
   ],
-  "description": "Super simple Google Fusion Tables access using JavaScript",
+  "description": "A JavaScript wrapper for Google Fusion Tables",
   "keywords": [
     "Fusion",
     "Tables",
     "FusionTables"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/achavez/FusionTables.js",
+  "homepage": "http://code.achavez.io/FusionTables.js",
   "ignore": [
     "**/.*",
     "node_modules",
