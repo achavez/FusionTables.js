@@ -9,10 +9,10 @@ Usage
 -----
 For the most basic usage you'll need two pieces of information to get your data out of Fusion Tables:
 
-- **Table ID**: An encryped string value that identifies your table (should look something like `1e7y6mtqv891111111111_aaaaaaaaa_CvWhg9gc`). You can get the Table ID by going to File > About in the Fusion Tables Web app.
+- **Table ID**: An encrypted string value that identifies your table (should look something like `1e7y6mtqv891111111111_aaaaaaaaa_CvWhg9gc`). You can get the Table ID by going to File > About in the Fusion Tables Web app.
 - **Fusion Tables API key**: You can obtain an API key from the Google Developers Console. The Fusion Tables API documentation has a step-by-step guide for obtaining a key: [https://developers.google.com/fusiontables/docs/v1/using#APIKey](https://developers.google.com/fusiontables/docs/v1/using#APIKey)
 
-You'll also need to ensure that you're Fusion Table is published and accessible. Do that by going to Tools > Share and changing the visiblity to either *Anyone with the link* or *Public on the web*.
+You'll also need to ensure that your Fusion Table is published and accessible. Do that by going to Tools > Share and changing the visibility to either *Anyone with the link* or *Public on the web*.
 
 Be sure to include `[fusiontables.min.js](https://github.com/achavez/FusionTables.js/blob/master/fusiontables.min.js)` as well as its two dependencies -- [Underscore.js](https://github.com/jashkenas/underscore/) and [jQuery](https://github.com/jquery/jquery) -- in your HTML file:
 
@@ -22,7 +22,7 @@ Be sure to include `[fusiontables.min.js](https://github.com/achavez/FusionTable
 <script src="/path/to/fusiontables.min.js"></script>
 ```
 
-If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class and delcares `jquery` and `underscore` as dependencies.
+If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class and declares `jquery` and `underscore` as dependencies.
 
 Next, create a new `FusionTables` instance and pass in an object with your API key, Table ID and an array with the columns you'd like included. The columns property is optional and the `ROWID` will automatically be appended unless you pass in a `*`:
 
@@ -73,7 +73,7 @@ Fetch a single row from the Fusion Table, using a `WHERE` clause to fetch the sp
 - optional *array* `options.columns`: the columns to return data for
 - optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
 - optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
-- *object* **returns** a single Fusion Tables row as an object or `null` if there's no match 
+- *object* **returns** a single Fusion Tables row as an object or `null` if there's no match
 
 ###`columns(success, error, options)`
 #####Usage
@@ -94,7 +94,7 @@ Run a query using custom SQL and (optionally) a custom parser for the data retur
 - *string* `sql`: a raw SQL string that will be URI-encoded and sent directly to the Fusion Tables API; to see what the API supports, see [https://developers.google.com/fusiontables/docs/v1/sql-reference#Select](https://developers.google.com/fusiontables/docs/v1/sql-reference#Select)
 - optional *function* `options.parser`: a function that is passed the raw response from the Fusion Tables API; whatever is returned by this function will be passed to the `success` function; see `FusionTables.prototype.rowParser` and `FusionTables.prototype.columnParser`
 - optional *boolean* `options.cache`: a boolean indicating whether to request cached results from the proxy; has no effect on direct API requests (*see Proxying and caching requests* below)
-- *fusiontables#sqlresponse object* **returns** the raw response from the Fusion Tables API -- unless you've overriden the parser function, in which case it'll return whatever your parser returns; if you want to use rows like the other methods, just pass it the `rowParser`
+- *fusiontables#sqlresponse object* **returns** the raw response from the Fusion Tables API -- unless you've overridden the parser function, in which case it'll return whatever your parser returns; if you want to use rows like the other methods, just pass it the `rowParser`
 
 Backbone.FusionTables
 -----
@@ -109,7 +109,7 @@ To use the drive, create a `FusionTables` instance to pass to the drive. It work
 // Initialize FusionTables.js
 var ft = new FusionTables({
   key: 'YOUR_API_KEY',
-  tableId: 'YOUR_TABLE_ID', 
+  tableId: 'YOUR_TABLE_ID',
   columns: ['ISBN', 'Title', 'Author', 'Pages'] // required with Backbone.FusionTables
 });
 ```
@@ -189,7 +189,7 @@ var ft = new FusionTables({
 });
 ```
 
-Caching can also be disabled/enabled on a per-request basis by passing setting `cache` in a call's `options` parameter: 
+Caching can also be disabled/enabled on a per-request basis by passing setting `cache` in a call's `options` parameter:
 
 ```javascript
 ft.columns(success, error, {cache: true}); // enable the cache for this request
