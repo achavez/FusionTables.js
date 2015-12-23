@@ -196,6 +196,11 @@ ft.columns(success, error, {cache: true}); // enable the cache for this request
 ft.columns(success, error, {cache: false}); // disable for this one, even if it was set on instantiation of ft
 ```
 
+Tests
+-----
+Run the tests in the browser with `grunt testclient`, which will open the Intern.js browser client.
+
+
 License
 -----
 The MIT License (MIT)
