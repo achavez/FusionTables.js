@@ -5,14 +5,18 @@ define(function (require) {
 
     var FusionTables = require('src/fusiontables');
 
+    function ftSetup() {
+        return new FusionTables({
+            key: 'YOUR_API_KEY',
+            tableId: 'YOUR_TABLE_ID'
+        });
+    }
+
     registerSuite({
         name: 'FusionTables.prototype._endpoint_url',
 
         'builds direct API URLs': function () {
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             assert.strictEqual(
                 ft._endpoint_url('some_endpoint'),
@@ -53,10 +57,7 @@ define(function (require) {
         'fires success function with JSON data': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Object);
@@ -72,10 +73,7 @@ define(function (require) {
         'fires error function on network error': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var error = dfd.callback(function (e) {
                 assert.instanceOf(e, Error);
@@ -91,10 +89,7 @@ define(function (require) {
         'fires error function on HTTP error': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var error = dfd.callback(function (e) {
                 assert.instanceOf(e, Error);
@@ -114,10 +109,7 @@ define(function (require) {
         'fires success function with JSON data': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Object);
@@ -133,10 +125,7 @@ define(function (require) {
         'fires error function on network/HTTP error': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var error = dfd.callback(function (e) {
                 assert.instanceOf(e, Error);
@@ -154,10 +143,7 @@ define(function (require) {
         name: 'FusionTables.prototype.columnParser',
 
         'parse fusiontables#columnList into an array of column names': function () {
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             var parsed = ft.columnParser(fixtures.columnList);
 
@@ -165,10 +151,7 @@ define(function (require) {
         },
 
         'throw an error if passed data is not a fusiontables#columnList': function () {
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             // Deep-clone and alter the fixture to have an incorrect kind
             var fixture = JSON.parse(JSON.stringify(fixtures.columnList));
@@ -186,10 +169,7 @@ define(function (require) {
         'return an array of columns': function () {
             var dfd = this.async(5000);
 
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID'
-            });
+            var ft = ftSetup();
 
             // Shim to return our mocked response
             ft._endpoint_url = function() {
