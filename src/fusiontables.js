@@ -42,6 +42,9 @@
         this.options.cache = this.options.cache || false;
     }
 
+
+    // ~ Internal methods to handle API requests ~ //
+
     /**
      * Return a fully-qualified URL to an API endpoint given the endpoint
      * name
@@ -228,6 +231,9 @@
         req(url, callback, error);
     };
 
+
+    // ~ Parsers for API responses ~ //
+
     // Transform the fusiontables#sqlresponse JSON response into an
     // array of JavaScript objects
     FusionTables.prototype.rowsParser = function (data) {
@@ -263,13 +269,14 @@
     };
 
     /**
-     * Transform the fusiontables#columnList JSON response
-     * into an array of column names
+     * Parse the fusiontables#columnList JSON response into an array of
+     * column names
      * @method
      *
      * @see https://developers.google.com/fusiontables/docs/v2/reference/column/list
      *
-     * @param {Object} data - a parsed fusiontables#columnList API response
+     * @param {Object} data - a fusiontables#columnList API response, parsed
+     *   from JSON into a JavaScript object
      * @param {Array} - an array of column names
      */
     FusionTables.prototype.columnParser = function (data) {
@@ -281,33 +288,77 @@
         });
     };
 
-    // SQL SELECT string builder
+
+    // ~ Helpers to build SQL statements ~ //
+
+    /**
+     * Write a SQL SELECT statement for the passed columns, adding the ROWID if
+     * necessary
+     * @method
+     *
+     * @param {Array} [cols=this.options.columns] - an array of strings with
+     *   the names of the columns to write the SELECT statement for;
+     *   ex: ['column1', 'column2']
+     * @return {string} - a SQL SELECT statement; ex: 'SELECT column1, column2,
+     *   ROWID FROM table'
+     */
     FusionTables.prototype.sqlSelect = function (cols) {
         cols = cols || this.options.columns;
-        if (cols !== ['*'] && !_.contains(cols, 'ROWID')) {
+        if (cols.indexOf('*') === -1 && cols.indexOf('ROWID') === -1) {
             cols.push('ROWID');
         }
         return 'SELECT ' + cols.join(', ') + ' FROM ' + this.options.tableId;
     };
 
-    // SQL WHERE string builder
-    // Operator is optional
+    /**
+     * Write a single SQL WHERE statement based on the passed values
+     * @method
+     *
+     * @param {string} column - the column to compare against
+     * @param {string, integer} value - the value to use for the comparison
+     * @param {string} [operator='='] - a SQL operator ('=', '<', '>', etc.)
+     * @return {string} - a fully-formed WHERE statement; ex: 'WHERE column < 5'
+     */
     FusionTables.prototype.sqlWhere = function (column, value, operator) {
-        if (!column || typeof value === 'undefined') {
+        if (typeof column === 'undefined' || typeof value === 'undefined') {
             throw new Error('The column and value properties are required in the where object.');
         }
         operator = operator || '=';
         return 'WHERE ' + column + ' ' + operator + ' ' + value;
     };
 
-    // SQL LIMIT string builder
+    /**
+     * Return a SQL LIMIT statement based on the passed integer
+     * @method
+     *
+     * @param {int} limit - the row count to build the LIMIT statement from
+     * @return {string} - a SQL LIMIT statement, ex: LIMIT 5
+     */
     FusionTables.prototype.sqlLimit = function (limit) {
+        if (isNaN(limit)) {
+            throw new TypeError('The limit parameter is required when calling .sqlLimit()');
+        }
         return 'LIMIT ' + limit;
     };
 
-    // Builds a SQL query out of all the provided pieces:
-    // SELECT, WHERE, LIMIT, etc.
-    // More info: https://developers.google.com/fusiontables/docs/v1/sql-reference
+    /**
+     * Build the URL parameters, including a valid SQL query, to begin building
+     * a request to the FusionTables API
+     * @method
+     *
+     * @see https://developers.google.com/fusiontables/docs/v1/reference/query/sql
+     *
+     * @param {Object} [where] - an object that will be turned into a where
+     *   statement; ex: {column: 'column1', value: 'somevalue', operator: '>'};
+     *   where.operator is optional
+     * @param {int} [limit] - a number, which will be used to generate a LIMIT
+     *   statement
+     * @param {Array} [cols] - columns to use for the query, if not included
+     *   this.sqlSelect() will handle fallbacks
+     * @return {Object} - an object of key-value pairs (including a SQL query),
+     *   which can be turned into a querystring and sent to the FusionTables
+     *   SQL API
+     */
     FusionTables.prototype.sqlQuery = function (where, limit, cols) {
         var query = [this.sqlSelect(cols)];
         if (where) {
@@ -324,6 +375,9 @@
             };
         return params;
     };
+
+
+    // ~ Public instance methods ~ //
 
     // Fetch a single row
     FusionTables.prototype.row = function (success, error, where, options) {

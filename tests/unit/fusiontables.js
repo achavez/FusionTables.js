@@ -145,9 +145,10 @@ define(function (require) {
         'parse fusiontables#columnList into an array of column names': function () {
             var ft = ftSetup();
 
-            var parsed = ft.columnParser(fixtures.columnList);
-
-            assert.deepEqual(parsed, ["Mammal Type", "Group Size", "Year 1st Tracked"]);
+            assert.deepEqual(
+                ft.columnParser(fixtures.columnList),
+                ["Mammal Type", "Group Size", "Year 1st Tracked"]
+            );
         },
 
         'throw an error if passed data is not a fusiontables#columnList': function () {
@@ -199,6 +200,136 @@ define(function (require) {
             };
 
             ft.columns(function() {});
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.sqlWhere',
+
+        'return a valid WHERE statement with the default operator': function () {
+            var ft = ftSetup();
+            assert.strictEqual(ft.sqlWhere('column', 'value'), 'WHERE column = value');
+        },
+
+        'return a valid WHERE statement with a custom operator': function () {
+            var ft = ftSetup();
+            assert.strictEqual(ft.sqlWhere('column', 'value', '>'), 'WHERE column > value');
+        },
+
+        'throw an error if not passed both column and value': function () {
+            var ft = ftSetup();
+
+            assert.throws(ft.sqlWhere, Error);
+            assert.throws(function() {
+                ft.sqlWhere('column');
+            }, Error);
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.sqlLimit',
+
+        'return a valid LIMIT statement': function () {
+            var ft = ftSetup();
+            assert.strictEqual(ft.sqlLimit(5), 'LIMIT 5');
+        },
+
+        'throw an error if not passed a valid number': function () {
+            var ft = ftSetup();
+
+            assert.throws(ft.sqlLimit, TypeError);
+            assert.throws(function() {
+                ft.sqlLimit('five');
+            }, TypeError);
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.sqlSelect',
+
+        'auto-append ROWID when cols is passed without it': function () {
+            var ft = ftSetup();
+            assert.strictEqual(
+                ft.sqlSelect(['column1', 'column2']),
+                'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID'
+            );
+        },
+
+        "don't re-append ROWID when it's passed as part of cols": function () {
+            var ft = ftSetup();
+            assert.strictEqual(
+                ft.sqlSelect(['column1', 'column2', 'ROWID']),
+                'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID'
+            );
+        },
+
+        "don't append ROWID when `['*']` is passed in cols": function () {
+            var ft = ftSetup();
+            assert.strictEqual(
+                ft.sqlSelect(['*']),
+                'SELECT * FROM YOUR_TABLE_ID'
+            );
+        },
+
+        'use columns from constructor options if none is passed': function () {
+            var ft = ftSetup();
+            ft.options.columns = ['column1', 'column2'];
+
+            assert.strictEqual(
+                ft.sqlSelect(),
+                'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID'
+            );
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.sqlQuery',
+
+        'return a simple SELECT query when nothing is passed': function () {
+            var ft = ftSetup();
+            ft.options.columns = ['column1'];
+
+            assert.deepEqual(ft.sqlQuery(), {
+                sql: 'SELECT column1, ROWID FROM YOUR_TABLE_ID',
+                typed: true,
+                hdrs: false
+            });
+        },
+
+        'append a WHERE statement when a `where` object is passed': function () {
+            var ft = ftSetup();
+
+            var where = {
+                column: 'column3',
+                value: 5,
+                operator: '>'
+            };
+
+            assert.deepEqual(ft.sqlQuery(where), {
+                sql: 'SELECT ROWID FROM YOUR_TABLE_ID WHERE column3 > 5',
+                typed: true,
+                hdrs: false
+            });
+        },
+
+        'append a LIMIT statement when a `limit` is passed': function () {
+            var ft = ftSetup();
+
+            assert.deepEqual(ft.sqlQuery(false, 5), {
+                sql: 'SELECT ROWID FROM YOUR_TABLE_ID LIMIT 5',
+                typed: true,
+                hdrs: false
+            });
+        },
+
+        "used `cols` array if it's passed": function () {
+            var ft = ftSetup();
+
+            assert.deepEqual(ft.sqlQuery(false, false, ['column1', 'column2']), {
+                sql: 'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID',
+                typed: true,
+                hdrs: false
+            });
         }
     });
 });
