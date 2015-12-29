@@ -12,6 +12,9 @@ define(function (require) {
         });
     }
 
+
+    // ~ Tests for request handlers ~ //
+
     registerSuite({
         name: 'FusionTables.prototype._endpoint_url',
 
@@ -139,6 +142,93 @@ define(function (require) {
         }
     });
 
+
+    // ~ Tests for API response parsers ~ //
+
+    registerSuite({
+        name: 'FusionTables.prototype.rowsParser',
+
+        'parse fusiontables#sqlResponse into an array of objects': function () {
+            var ft = ftSetup();
+
+            var expected = [{
+                "Inventory": "1251500558",
+                "Product": "Amber Bead",
+                "rowid": 1
+            }, {
+                "Inventory": "356",
+                "Product": "Black Shoes",
+                "rowid": 201
+            }, {
+                "Inventory": "100",
+                "Product": "White Shoes",
+                "rowid": 401
+            }];
+
+            assert.deepEqual(ft.rowsParser(fixtures.sqlresponse), expected);
+        },
+
+        'return `null` if the response contains no items': function () {
+            var ft = ftSetup();
+
+            // Create fixture with an empty rows array
+            var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
+            fixture.rows = [];
+
+            assert.isNull(ft.rowsParser(fixture));
+        },
+
+        'throw an error if passed data is not a fusiontables#sqlresponse': function () {
+            var ft = ftSetup();
+
+            // Deep-clone and alter the fixture to have an incorrect kind
+            var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
+            fixture.kind = 'notsqlresponse';
+
+            assert.throws(function() {
+                ft.rowsParser(fixture);
+            }, 'Expected fusiontables#sqlresponse');
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.rowParser',
+
+        'parse first row of fusiontables#sqlResponse into an object': function () {
+            var ft = ftSetup();
+
+            var expected = {
+                "Inventory": "1251500558",
+                "Product": "Amber Bead",
+                "rowid": 1
+            };
+
+            assert.deepEqual(ft.rowParser(fixtures.sqlresponse), expected);
+        },
+
+        'return `null` if the response contains no items': function () {
+            var ft = ftSetup();
+
+            // Create fixture with an empty rows array
+            var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
+            fixture.rows = [];
+
+            assert.isNull(ft.rowParser(fixture));
+        },
+
+        'throw an error if passed data is not a fusiontables#sqlresponse': function () {
+            var ft = ftSetup();
+
+            // Deep-clone and alter the fixture to have an incorrect kind
+            var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
+            fixture.kind = 'notsqlresponse';
+
+            assert.throws(function() {
+                ft.rowParser(fixture);
+            }, 'Expected fusiontables#sqlresponse');
+        }
+    });
+
     registerSuite({
         name: 'FusionTables.prototype.columnParser',
 
@@ -164,44 +254,8 @@ define(function (require) {
         }
     });
 
-    registerSuite({
-        name: 'FusionTables.prototype.columns',
 
-        'return an array of columns': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            // Shim to return our fixture, skipping an actual API request
-            ft._jsonp_request = function(url, success) {
-                success(fixtures.columnList);
-            };
-
-            var success = dfd.callback(function (data) {
-                assert.instanceOf(data, Array);
-                assert.deepEqual(data, ["Mammal Type", "Group Size", "Year 1st Tracked"]);
-            });
-
-            ft.columns(success);
-        },
-
-        'make an API request to tables/TABLE/columns': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            // Ensure the proper URL is being requested
-            ft._jsonp_request = function(url, success, error) {
-                assert.strictEqual(
-                    url,
-                    'https://www.googleapis.com/fusiontables/v1/tables/YOUR_TABLE_ID/columns?key=YOUR_API_KEY'
-                );
-                dfd.resolve();
-            };
-
-            ft.columns(function() {});
-        }
-    });
+    // ~ Tests for for SQL query helpers ~ //
 
     registerSuite({
         name: 'FusionTables.prototype.sqlWhere',
@@ -330,6 +384,48 @@ define(function (require) {
                 typed: true,
                 hdrs: false
             });
+        }
+    });
+
+
+    // ~ Tests for public instance methods ~ //
+
+    registerSuite({
+        name: 'FusionTables.prototype.columns',
+
+        'return an array of columns': function () {
+            var dfd = this.async(5000);
+
+            var ft = ftSetup();
+
+            // Shim to return our fixture, skipping an actual API request
+            ft._jsonp_request = function(url, success) {
+                success(fixtures.columnList);
+            };
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Array);
+                assert.deepEqual(data, ["Mammal Type", "Group Size", "Year 1st Tracked"]);
+            });
+
+            ft.columns(success);
+        },
+
+        'make an API request to tables/TABLE/columns': function () {
+            var dfd = this.async(5000);
+
+            var ft = ftSetup();
+
+            // Ensure the proper URL is being requested
+            ft._jsonp_request = function(url, success, error) {
+                assert.strictEqual(
+                    url,
+                    'https://www.googleapis.com/fusiontables/v1/tables/YOUR_TABLE_ID/columns?key=YOUR_API_KEY'
+                );
+                dfd.resolve();
+            };
+
+            ft.columns(function() {});
         }
     });
 });

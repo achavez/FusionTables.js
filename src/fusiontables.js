@@ -225,15 +225,26 @@
 
     // ~ Parsers for API responses ~ //
 
-    // Transform the fusiontables#sqlresponse JSON response into an
-    // array of JavaScript objects
+    /**
+     * Transform the fusiontables#sqlresponse JSON response into an
+     * array of JavaScript objects
+     *
+     * @param {Object} data - a fusiontables#sqlResponse API response, parsed
+     *   from JSON into a JavaScript object
+     * @return {Array, null} - an array of objects, each representing a row (ex:
+     *   [{column1: 'val', column2: 'val'}, {column1: 'val', column2: 'val'}])
+     *   or null if no rows are returned
+     */
     FusionTables.prototype.rowsParser = function (data) {
-        if(!data.rows) {
+        if(data.hasOwnProperty('kind') && data.kind !== 'fusiontables#sqlresponse') {
+            throw new Error('Expected fusiontables#sqlresponse response. ' + data.kind + ' returned instead.');
+        }
+        if(!data.rows || data.rows.length === 0) {
             return null;
         }
-        return _.map(data.rows, function (row) {
+        return data.rows.map(function (row) {
             var rowObj = {};
-            _.each(row, function (el, index) {
+            row.forEach(function (el, index) {
                 if (data.columns[index] === 'rowid') {
                     el = parseInt(el, 10);
                 }
@@ -243,14 +254,24 @@
         });
     };
 
-    // Transform the fusiontables#sqlresponse JSON response into a
-    // single JavaScript object
+    /**
+     * Transform the first row in a fusiontables#sqlresponse response into a
+     * single JavaScript objects
+     *
+     * @param {Object} data - a fusiontables#sqlResponse API response, parsed
+     *   from JSON into a JavaScript object
+     * @return {Object, null} - an objects, with each item representing a column
+     *   (ex: {column1: 'val', column2: 'val'}) or null if no rows are returned
+     */
     FusionTables.prototype.rowParser = function (data) {
-        if(!data.rows) {
+        if(data.hasOwnProperty('kind') && data.kind !== 'fusiontables#sqlresponse') {
+            throw new Error('Expected fusiontables#sqlresponse response. ' + data.kind + ' returned instead.');
+        }
+        if(!data.rows || data.rows.length === 0) {
             return null;
         }
         var rowObj = {};
-        _.each(data.rows[0], function (el, index) {
+        data.rows[0].forEach(function (el, index) {
             if (data.columns[index] === 'rowid') {
                 el = parseInt(el, 10);
             }

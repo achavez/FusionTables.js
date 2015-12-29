@@ -19,6 +19,31 @@ define(function() {
         "name": "Year 1st Tracked",
         "type": "DATETIME"
       }]
+    },
+    sqlresponse: {
+      "kind": "fusiontables#sqlresponse",
+      "columns": [
+        "rowid",
+        "Product",
+        "Inventory"
+      ],
+      "rows": [
+        [
+          "1",
+          "Amber Bead",
+          "1251500558"
+        ],
+        [
+          "201",
+          "Black Shoes",
+          "356"
+        ],
+        [
+          "401",
+          "White Shoes",
+          "100"
+        ]
+      ]
     }
   };
 
