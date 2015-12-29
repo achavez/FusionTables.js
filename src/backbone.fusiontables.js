@@ -7,13 +7,14 @@
  * Licensed under the MIT license.
  */
 
-// If AMD is being used on the page, implement it and export
-// Backbone with Backbone.FusionTables
+// Implement UMD to add FusionTables driver to Backbone and re-export
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define(['backbone'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory(require('backbone'));
     } else {
-        root.Backbone = factory(Backbone);
+        root.Backbone = factory(root.Backbone);
     }
 }(this, function (Backbone) {
 

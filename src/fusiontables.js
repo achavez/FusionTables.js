@@ -16,11 +16,13 @@
  * Licensed under the MIT license.
  */
 
-// Implement AMD and export FusionTables, if AMD is
-// being used on the page
+// Implement UMD to export AMD and Node modules or, as a last resort,
+// export FusionTables as a global
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
     } else {
         root.FusionTables = factory();
     }
