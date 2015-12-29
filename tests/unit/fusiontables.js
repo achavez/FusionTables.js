@@ -58,6 +58,7 @@ define(function (require) {
             });
 
             var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Object);
                 assert.strictEqual(data.hello, "world");
             });
 
@@ -118,7 +119,8 @@ define(function (require) {
             });
 
             var success = dfd.callback(function (data) {
-                assert.strictEqual(data.hello, "world");
+                assert.instanceOf(data, Object);
+                assert.deepEqual(data, { hello : "world" });
             });
 
             ft._jsonp_request(
@@ -144,6 +146,31 @@ define(function (require) {
                 function() {},
                 error
             );
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.columns',
+
+        'return an array of columns': function () {
+            var dfd = this.async(5000);
+
+            var ft = new FusionTables({
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID'
+            });
+
+            // Shim to return our mocked response
+            ft._endpoint_url = function() {
+                return 'http://www.mocky.io/v2/5682cb94100000d01c1538b2';
+            };
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Array);
+                assert.deepEqual(data, ["Mammal Type", "Group Size", "Year 1st Tracked"]);
+            });
+
+            ft.columns(success);
         }
     });
 });

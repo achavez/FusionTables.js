@@ -20,11 +20,11 @@
 // being used on the page
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['jquery', 'underscore'], factory);
+        define(['underscore'], factory);
     } else {
-        root.FusionTables = factory($, _);
+        root.FusionTables = factory(_);
     }
-}(this, function ($, _) {
+}(this, function (_) {
 
     'use strict';
 
@@ -201,31 +201,21 @@
             params.cache = true;
         }
 
-        // Setup the request options
-        var ajax_options = {
-            url: this._endpoint_url(endpoint),
-            contentType: 'application/json',
-            data: params
-        };
+        // Setup the request
+        var req = this.options.proxy ? this._json_request : this._jsonp_request,
+            url = this._endpoint_url(endpoint, params);
 
-        // Use JSONP if there's no proxy
-        if (!this.options.proxy) {
-            ajax_options.dataType = 'jsonp';
-        } else {
-            ajax_options.dataType = 'json';
-        }
-
-        // Make the request, parse the response and
-        // hand it off to the callback function
-        $.ajax(ajax_options).done(function (data) {
+        // Wrap the success function in the parser, if provided
+        var callback = function(data) {
             if (typeof parser === 'function') {
                 data = parser(data);
             }
-            success(data);
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            error(errorThrown);
-        });
 
+            success(data);
+        };
+
+        // Make the request
+        req(url, callback, error);
     };
 
     // Transform the fusiontables#sqlresponse JSON response into an

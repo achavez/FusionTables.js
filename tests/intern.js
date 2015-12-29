@@ -43,7 +43,6 @@ define({
 	loaderOptions: {
 		// Packages that should be registered with the loader in each testing environment
 		packages: [
-			{ name: 'jquery', location: 'bower_components/jquery/dist', main: 'jquery' },
 			{ name: 'underscore', location: 'bower_components/underscore', main: 'underscore' }
 		]
 	},
