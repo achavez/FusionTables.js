@@ -208,7 +208,17 @@
         // Wrap the success function in the parser, if provided
         var callback = function(data) {
             if (typeof parser === 'function') {
-                data = parser(data);
+                try {
+                    data = parser(data);
+                }
+                catch(e) {
+                    if(typeof error === 'function') {
+                        error(e);
+                    }
+                    else {
+                        throw e;
+                    }
+                }
             }
 
             success(data);
@@ -252,10 +262,23 @@
         return rowObj;
     };
 
-    // Transform the fusiontables#columnList JSON response
-    // into an array of column names
+    /**
+     * Transform the fusiontables#columnList JSON response
+     * into an array of column names
+     * @method
+     *
+     * @see https://developers.google.com/fusiontables/docs/v2/reference/column/list
+     *
+     * @param {Object} data - a parsed fusiontables#columnList API response
+     * @param {Array} - an array of column names
+     */
     FusionTables.prototype.columnParser = function (data) {
-        return _.pluck(data.items, 'name');
+        if(data.hasOwnProperty('kind') && data.kind !== 'fusiontables#columnList') {
+            throw new Error('Expected fusiontables#columnList response. ' + data.kind + ' returned instead.');
+        }
+        return data.items.map(function (item) {
+            return item.name;
+        });
     };
 
     // SQL SELECT string builder
@@ -321,11 +344,23 @@
         this._api_request('query', params, success, error, parser, opts.cache);
     };
 
-    // Fetch an array of columns in the table
+    /**
+     * Get the names of all columns in the table
+     * @method
+     *
+     * @param {function} success - a function to call with the results once
+     *   the API response returns, will be called with an Array of column names
+     * @param {function} error - a function that will be called if any error
+     *   occurs; will be passed an Error
+     * @param {Object} [options] - any options for this specific request; will
+     *   override any options set during instance construction; takes the same
+     *   options as all other methods
+     */
     FusionTables.prototype.columns = function (success, error, options) {
         var opts = options || {},
             parser = opts.parser || this.columnParser,
             endpoint = 'tables/' + this.options.tableId + '/columns';
+
         this._api_request(endpoint, null, success, error, parser, opts.cache);
     };
 

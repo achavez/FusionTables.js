@@ -1,6 +1,7 @@
 define(function (require) {
     var registerSuite = require('intern!object'),
-        assert = require('intern/chai!assert');
+        assert = require('intern/chai!assert'),
+        fixtures = require('tests/support/fixtures');
 
     var FusionTables = require('src/fusiontables');
 
@@ -146,6 +147,36 @@ define(function (require) {
                 function() {},
                 error
             );
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype.columnParser',
+
+        'parse fusiontables#columnList into an array of column names': function () {
+            var ft = new FusionTables({
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID'
+            });
+
+            var parsed = ft.columnParser(fixtures.columnList);
+
+            assert.deepEqual(parsed, ["Mammal Type", "Group Size", "Year 1st Tracked"]);
+        },
+
+        'throw an error if passed data is not a fusiontables#columnList': function () {
+            var ft = new FusionTables({
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID'
+            });
+
+            // Deep-clone and alter the fixture to have an incorrect kind
+            var fixture = JSON.parse(JSON.stringify(fixtures.columnList));
+            fixture.kind = 'notColumnList';
+
+            assert.throws(function() {
+                ft.columnParser(fixture);
+            }, 'Expected fusiontables#columnList');
         }
     });
 
