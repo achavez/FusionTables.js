@@ -171,9 +171,9 @@ define(function (require) {
 
             var ft = ftSetup();
 
-            // Shim to return our mocked response
-            ft._endpoint_url = function() {
-                return 'http://www.mocky.io/v2/5682cb94100000d01c1538b2';
+            // Shim to return our fixture, skipping an actual API request
+            ft._jsonp_request = function(url, success) {
+                success(fixtures.columnList);
             };
 
             var success = dfd.callback(function (data) {
@@ -182,6 +182,23 @@ define(function (require) {
             });
 
             ft.columns(success);
+        },
+
+        'make an API request to tables/TABLE/columns': function () {
+            var dfd = this.async(5000);
+
+            var ft = ftSetup();
+
+            // Ensure the proper URL is being requested
+            ft._jsonp_request = function(url, success, error) {
+                assert.strictEqual(
+                    url,
+                    'https://www.googleapis.com/fusiontables/v1/tables/YOUR_TABLE_ID/columns?key=YOUR_API_KEY'
+                );
+                dfd.resolve();
+            };
+
+            ft.columns(function() {});
         }
     });
 });
