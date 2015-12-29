@@ -81,12 +81,10 @@
      * @param {string} url - the URL to make the request to
      * @param {function} success - a function to pass the parsed response to;
      *   will be passed a JavaScript object with the returned data
-     * @param {function} [error=console.error] - a function to call if an error
-     *   occurs; will be passed a JavaScript Error object
+     * @param {function} error - a function to call if an error occurs; will
+     *   be passed a JavaScript Error object
      */
     FusionTables.prototype._json_request = function (url, success, error) {
-        error = error || console.error;
-
         var request = new XMLHttpRequest();
 
         request.open('GET', url, true);
@@ -121,12 +119,10 @@
      * @param {string} url - the URL to make the request to
      * @param {function} success - a function to pass the parsed response to;
      *   will be passed a JavaScript object with the returned data
-     * @param {function} [error=console.error] - a function to call if an error
-     *   occurs; will be passed a JavaScript Error object
+     * @param {function} error - a function to call if an error occurs; will
+     *   be passed a JavaScript Error object
      */
     FusionTables.prototype._jsonp_request = function (url, success, error) {
-        error = error || console.error;
-
         var complete = false,
             timeout = 3000;
 
@@ -171,11 +167,11 @@
      *
      * @param {string} endpoint - the FusionTables API endpoint to make the
      *   request to (ex: query)
-     * @param {Object} [params] - an object of attribute-value pairs
+     * @param {Object} params - an object of attribute-value pairs
      *   that will be converted into the URL's query string
-     * @param {function} [success] - a function that will be called
+     * @param {function} success - a function that will be called
      *   with the data returned from the API
-     * @param {function} [error] - a function that will be called if
+     * @param {function} error - a function that will be called if
      *   an error occurs during the request
      * @param {function} [parser] - a function that will be used to
      *   parse the API response
@@ -215,12 +211,7 @@
                     data = parser(data);
                 }
                 catch(e) {
-                    if(typeof error === 'function') {
-                        error(e);
-                    }
-                    else {
-                        throw e;
-                    }
+                    error(e);
                 }
             }
 
