@@ -20,11 +20,11 @@
 // being used on the page
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['underscore'], factory);
+        define([], factory);
     } else {
-        root.FusionTables = factory(_);
+        root.FusionTables = factory();
     }
-}(this, function (_) {
+}(this, function () {
 
     'use strict';
 

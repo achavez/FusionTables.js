@@ -19,8 +19,5 @@
     "bower_components",
     "test",
     "tests"
-  ],
-  "dependencies": {
-    "underscore": "~1.6.0"
-  }
+  ]
 }

@@ -14,15 +14,13 @@ For the most basic usage you'll need two pieces of information to get your data 
 
 You'll also need to ensure that your Fusion Table is published and accessible. Do that by going to Tools > Share and changing the visibility to either *Anyone with the link* or *Public on the web*.
 
-Be sure to include `[fusiontables.min.js](https://github.com/achavez/FusionTables.js/blob/master/fusiontables.min.js)` as well as its two dependencies -- [Underscore.js](https://github.com/jashkenas/underscore/) and [jQuery](https://github.com/jquery/jquery) -- in your HTML file:
+Be sure to include [`fusiontables.min.js`](https://github.com/achavez/FusionTables.js/blob/master/fusiontables.min.js) in your HTML file:
 
 ```html
-<script src="/path/to/jquery.min.js"></script>
-<script src="/path/to/underscore-min.js"></script>
 <script src="/path/to/fusiontables.min.js"></script>
 ```
 
-If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class and declares `jquery` and `underscore` as dependencies.
+If you're using [Require.js](https://github.com/jrburke/requirejs) or another module loader the script exports the `FusionTables` class.
 
 Next, create a new `FusionTables` instance and pass in an object with your API key, Table ID and an array with the columns you'd like included. The columns property is optional and the `ROWID` will automatically be appended unless you pass in a `*`:
 
