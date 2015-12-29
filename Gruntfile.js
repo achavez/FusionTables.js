@@ -61,6 +61,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   // grunt.loadNpmTasks('intern');
 
+  grunt.registerTask('test', ['connect:testclient']);
   grunt.registerTask('default', ['jshint', 'clean', 'uglify']);
 
 };

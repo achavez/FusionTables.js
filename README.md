@@ -198,7 +198,7 @@ ft.columns(success, error, {cache: false}); // disable for this one, even if it 
 
 Tests
 -----
-Run the tests in the browser with `grunt testclient`, which will open the Intern.js browser client.
+Run the tests in the browser with `grunt test`, which will open the Intern.js browser client.
 
 
 License
