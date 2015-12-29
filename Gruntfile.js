@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     jshint: {
-      files: ['fusiontables.js', 'backbone.fusiontables.js']
+      files: ['src/**.js']
     },
 
     uglify: {
@@ -21,12 +21,12 @@ module.exports = function(grunt) {
       },
       fusiontables: {
         files: {
-          'dist/fusiontables.min.js': ['fusiontables.js']
+          'dist/fusiontables.min.js': ['src/fusiontables.js']
         }
       },
       'backbone.fusiontables': {
         files: {
-          'dist/backbone.fusiontables.min.js': ['backbone.fusiontables.js']
+          'dist/backbone.fusiontables.min.js': ['src/backbone.fusiontables.js']
         }
       }
     },
@@ -59,7 +59,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('intern');
+  // grunt.loadNpmTasks('intern');
 
   grunt.registerTask('default', ['jshint', 'clean', 'uglify']);
 
