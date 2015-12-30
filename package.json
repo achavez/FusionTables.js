@@ -18,7 +18,9 @@
   "directories": {
     "test": "tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "request": "^2.67.0"
+  },
   "scripts": {
     "test": "grunt runtests"
   },

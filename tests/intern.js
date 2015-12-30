@@ -41,11 +41,11 @@ define({
 	// If you want to use a different loader than the default loader, see
 	// <https://theintern.github.io/intern/#option-useLoader> for instruction
 	// Packages that should be registered with the loader in each testing environment
-	// loaderOptions: {
-	//   packages: [
-	// 	   { name: 'underscore', location: 'bower_components/underscore', main: 'underscore' }
-	//   ]
-	// },
+	loaderOptions: {
+	  packages: [
+		  { name: 'fusiontables', location: 'src', main: 'fusiontables' }
+		]
+	},
 
 	// Non-functional test suite(s) to run in each browser
 	suites: [ 'tests/unit/fusiontables', 'tests/unit/requests-browser' ],

@@ -22,11 +22,16 @@
     if (typeof define === 'function' && define.amd) {
         define([], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
+        if(typeof window === 'undefined' && typeof XMLHttpRequest === 'undefined') {
+            module.exports = factory(require('request'));
+        }
+        else {
+            module.exports = factory();
+        }
     } else {
         root.FusionTables = factory();
     }
-}(this, function () {
+}(this, function (request) {
 
     'use strict';
 
@@ -87,28 +92,28 @@
      *   be passed a JavaScript Error object
      */
     FusionTables.prototype._json_request = function (url, success, error) {
-        var request = new XMLHttpRequest();
+        var req = new XMLHttpRequest();
 
-        request.open('GET', url, true);
-        request.setRequestHeader('Accept', 'application/json');
+        req.open('GET', url, true);
+        req.setRequestHeader('Accept', 'application/json');
 
-        request.onload = function() {
-            if (request.status >= 200 && request.status < 400) {
-                var data = JSON.parse(request.responseText);
+        req.onload = function() {
+            if (req.status >= 200 && req.status < 400) {
+                var data = JSON.parse(req.responseText);
                 success(data);
 
                 // TODO: Catch API errors here
 
             } else {
-                error(new Error(request.statusText));
+                error(new Error(req.statusText));
             }
         };
 
-        request.onerror = function() {
-            error(new Error(request.statusText));
+        req.onerror = function() {
+            error(new Error(req.statusText));
         };
 
-        request.send();
+        req.send();
     };
 
     /**
@@ -163,6 +168,36 @@
     };
 
     /**
+     * Make a request for JSON data using the request Node module; this is the
+     * server-side version of _json_request
+     * @private
+     *
+     * @see https://github.com/request/request
+     *
+     * @param {string} url - the URL to make the request to
+     * @param {function} success - a function to pass the parsed response to;
+     *   will be passed a JavaScript object with the returned data
+     * @param {function} error - a function to call if an error occurs; will
+     *   be passed a JavaScript Error object
+     */
+    FusionTables.prototype._node_request = function (url, success, error) {
+        request({
+            url: url,
+            json: true
+        }, function (err, response, data) {
+            if(err) {
+                error(err);
+            }
+            else if(response.statusCode !== 200) {
+                error(new Error('FusionTables API responded with an HTTP ' + response.statusCode + ' error: ' + response.statusText));
+            }
+            else {
+                success(data);
+            }
+        });
+    };
+
+    /**
      * Make a request to the Fusion Tables v1.0 API and pass the results
      * to the passed success and error functions
      * @private
@@ -202,9 +237,17 @@
             params.cache = true;
         }
 
-        // Setup the request
-        var req = this.options.proxy ? this._json_request : this._jsonp_request,
-            url = this._endpoint_url(endpoint, params);
+        // Determine which of our HTTP request helpers to use
+        var req = this._jsonp_request;
+
+        if(this.options.proxy) {
+            req = this._json_request;
+        }
+        else if(typeof request !== 'undefined') { // Node.js/io.js
+            req = this._node_request;
+        }
+
+        var url = this._endpoint_url(endpoint, params);
 
         // Wrap the success function in the parser, if provided
         var callback = function(data) {

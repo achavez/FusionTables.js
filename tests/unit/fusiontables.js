@@ -6,7 +6,7 @@ define(function (require) {
         assert = require('intern/chai!assert'),
         fixtures = require('tests/support/fixtures');
 
-    var FusionTables = require('src/fusiontables');
+    var FusionTables = require('fusiontables');
 
     function setupFT () {
         return new FusionTables({
@@ -14,6 +14,48 @@ define(function (require) {
             tableId: 'YOUR_TABLE_ID'
         });
     }
+
+
+    // ~ Tests for shared logic among request handlers ~ //
+
+    registerSuite({
+        name: 'FusionTables.prototype._endpoint_url',
+
+        'builds direct API URLs': function () {
+            var ft = setupFT();
+
+            assert.strictEqual(
+                ft._endpoint_url('some_endpoint'),
+                'https://www.googleapis.com/fusiontables/v1/some_endpoint'
+            );
+        },
+
+        'substitutes proxy URL when it\'s set': function () {
+            var ft = new FusionTables({
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID',
+                proxy: 'http://www.some-proxy.com/'
+            });
+
+            assert.strictEqual(
+                ft._endpoint_url('some_endpoint'),
+                'http://www.some-proxy.com/fusiontables/v1/some_endpoint'
+            );
+        },
+
+        'correctly build querystring': function () {
+            var ft = new FusionTables({
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID',
+                proxy: 'http://www.some-proxy.com/'
+            });
+
+            assert.strictEqual(
+                ft._endpoint_url('some_endpoint', {'key': 'value', 'key2': 'value2'}),
+                'http://www.some-proxy.com/fusiontables/v1/some_endpoint?key=value&key2=value2'
+            );
+        }
+    });
 
 
     // ~ Tests for API response parsers ~ //

@@ -50,7 +50,10 @@ module.exports = function(grunt) {
       },
       unittests: {
         options: {
-          suites: [ 'tests/unit/fusiontables' ],
+          suites: [
+            'tests/unit/fusiontables',
+            'tests/unit/requests-node'
+          ],
           reporters: [{
             id: 'Pretty'
           }, {
