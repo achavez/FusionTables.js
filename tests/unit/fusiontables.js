@@ -608,4 +608,54 @@ define(function (require) {
             ft.columns(function() {});
         }
     });
+
+    registerSuite({
+        name: 'FusionTables.prototype.query',
+
+        'return rows as an array of objects': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            // Shim to return our fixture, skipping an actual API request
+            function mockRequest (url, success) {
+                success(fixtures.sqlresponse);
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Array);
+                var expect = [
+                    {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"},
+                    {rowid: 201, Product: "Black Shoes", Inventory: "356"},
+                    {rowid: 401, Product: "White Shoes", Inventory: "100"}
+                ];
+                assert.deepEqual(data, expect);
+            });
+
+            ft.query(success);
+        },
+
+        'pass our custom SQL in an API request to v1/query': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var expect = 'https://www.googleapis.com/fusiontables/v1/query?' +
+                         'sql=SELECT%20*%20FROM%20table&typed=true&hdrs=fal' +
+                         'se&key=YOUR_API_KEY';
+
+            // Ensure the proper URL is being requested
+            function mockRequest (url, success) {
+                assert.strictEqual(url, expect);
+                dfd.resolve();
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            ft.query(function() {}, function () {}, 'SELECT * FROM table');
+        }
+    });
+
 });

@@ -440,6 +440,23 @@
      *   etc.
      */
 
+     /**
+      * Fetch multiple rows from the table, optionally filtered by a WHERE
+      * clause; API response is parsed by FusionTables#rowsParser by default
+      * @param {successCallback} success - passed an array of row objects
+      * @param {errorCallback} error
+      * @param {Object} where - an object representing a WHERE statement to be
+      *   used to filter our table; ex: {column: 'column name', value: 5}
+      * @param {Object} [options] - any options for this specific request; will
+      *   override any options set during instance construction
+      */
+     FusionTables.prototype.rows = function (success, error, where, options) {
+         var opts = options || {},
+             parser = opts.parser || this.rowsParser,
+             params = this.sqlQuery(where, opts.limit, opts.columns);
+         this._api_request('query', params, success, error, parser, opts.cache);
+     };
+
     /**
      * Fetch a single row from the table, specified by the WHERE clause; API
      * response is parsed by FusionTables#rowParser by default
@@ -447,9 +464,7 @@
      * @param {errorCallback} error
      * @param {Object} where - an object representing a WHERE statement to be
      *   used to fetch our row; ex: {column: 'column name', value: 5}
-     * @param {Object} [options] - any options for this specific request; will
-     *   override any options set during instance construction; takes the same
-     *   options as all other methods
+     * @param {Object} [options] - same as FusionTables#rows
      */
     FusionTables.prototype.row = function (success, error, where, options) {
         if (typeof where === 'undefined') {
@@ -462,31 +477,11 @@
     };
 
     /**
-     * Fetch multiple rows from the table, optionally filtered by a WHERE
-     * clause; API response is parsed by FusionTables#rowsParser by default
-     * @param {successCallback} success - passed an array of row objects
-     * @param {errorCallback} error
-     * @param {Object} where - an object representing a WHERE statement to be
-     *   used to filter our table; ex: {column: 'column name', value: 5}
-     * @param {Object} [options] - any options for this specific request; will
-     *   override any options set during instance construction; takes the same
-     *   options as all other methods
-     */
-    FusionTables.prototype.rows = function (success, error, where, options) {
-        var opts = options || {},
-            parser = opts.parser || this.rowsParser,
-            params = this.sqlQuery(where, opts.limit, opts.columns);
-        this._api_request('query', params, success, error, parser, opts.cache);
-    };
-
-    /**
      * Get the names of all columns in the table API response is parsed by
      * FusionTables#colsParser by default
      * @param {successCallback} success - passed an Array of column names
      * @param {errorCallback} error
-     * @param {Object} [options] - any options for this specific request; will
-     *   override any options set during instance construction; takes the same
-     *   options as all other methods
+     * @param {Object} [options] - same as FusionTables#rows
      */
     FusionTables.prototype.columns = function (success, error, options) {
         var opts = options || {},
@@ -496,7 +491,15 @@
         this._api_request(endpoint, null, success, error, parser, opts.cache);
     };
 
-    // Pass a raw SQL query with an optional custom parser
+    /**
+     * Send a custom SQL query; results are parsed using FusionTables#rowParser
+     * by default
+     * @param {successCallback} success - passed an Array of column names
+     * @param {errorCallback} error
+     * @param {string} sql - a SQL query, including a FROM statement with the
+     *   table ID, LIMIT clause, etc.
+     * @param {Object} [options] - same as FusionTables#rows
+     */
     FusionTables.prototype.query = function (success, error, sql, options) {
         var opts = options || {},
             parser = opts.parser || this.rowsParser,
