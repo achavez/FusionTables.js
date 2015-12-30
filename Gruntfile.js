@@ -93,7 +93,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-open');
   grunt.loadNpmTasks('intern');
 
-  grunt.registerTask('test', ['clean:test', 'jshint', 'intern', 'open', 'connect:testclient']);
+  grunt.registerTask('runtests', ['clean:test', 'jshint', 'intern']);
+  grunt.registerTask('reporttests', ['open', 'connect:testclient']);
+  grunt.registerTask('test', ['runtests', 'reporttests']);
   grunt.registerTask('build', ['clean:build', 'uglify']);
 
 };
