@@ -246,7 +246,7 @@
         if(this.options.proxy) {
             req = this._json_request;
         }
-        else if(typeof request !== 'undefined') { // Node.js/io.js
+        if(typeof request !== 'undefined') { // Node.js/io.js
             req = this._node_request;
         }
 
