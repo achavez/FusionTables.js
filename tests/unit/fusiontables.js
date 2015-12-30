@@ -55,7 +55,7 @@ define(function (require) {
             assert.deepEqual(ft.options, {
                 key: 'YOUR_API_KEY',
                 tableId: 'YOUR_TABLE_ID',
-                columns: [],
+                columns: ['*'],
                 uri: 'https://www.googleapis.com/',
                 cache: false
             });
@@ -433,7 +433,7 @@ define(function (require) {
             };
 
             assert.deepEqual(ft.sqlQuery(where), {
-                sql: 'SELECT ROWID FROM YOUR_TABLE_ID WHERE column3 > 5',
+                sql: 'SELECT * FROM YOUR_TABLE_ID WHERE column3 > 5',
                 typed: true,
                 hdrs: false
             });
@@ -443,7 +443,7 @@ define(function (require) {
             var ft = setupFT();
 
             assert.deepEqual(ft.sqlQuery(false, 5), {
-                sql: 'SELECT ROWID FROM YOUR_TABLE_ID LIMIT 5',
+                sql: 'SELECT * FROM YOUR_TABLE_ID LIMIT 5',
                 typed: true,
                 hdrs: false
             });
@@ -497,7 +497,7 @@ define(function (require) {
             var ft = setupFT();
 
             var expect = 'https://www.googleapis.com/fusiontables/v1/query?' +
-                         'sql=SELECT%20ROWID%20FROM%20YOUR_TABLE_ID&typed=t' +
+                         'sql=SELECT%20*%20FROM%20YOUR_TABLE_ID&typed=t' +
                          'rue&hdrs=false&key=YOUR_API_KEY';
 
             // Ensure the proper URL is being requested
@@ -542,7 +542,7 @@ define(function (require) {
             var ft = setupFT();
 
             var expect = 'https://www.googleapis.com/fusiontables/v1/query?' +
-                         'sql=SELECT%20ROWID%20FROM%20YOUR_TABLE_ID%20WHERE' +
+                         'sql=SELECT%20*%20FROM%20YOUR_TABLE_ID%20WHERE' +
                          '%20col%20%3D%20val%20LIMIT%201&typed=true&hdrs=fa' +
                          'lse&key=YOUR_API_KEY';
 

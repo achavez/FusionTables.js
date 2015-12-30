@@ -53,7 +53,7 @@
         if (!this.options.key && !this.options.proxy) {
             throw new Error('Either an API key or a URL to a proxy that will sign your requests is required.');
         }
-        this.options.columns = this.options.columns || [];
+        this.options.columns = this.options.columns || ['*'];
         this.options.uri = this.options.proxy || 'https://www.googleapis.com/';
         this.options.cache = this.options.cache || false;
     }
