@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     jshint: {
-      files: ['src/**.js']
+      files: ['src/**.js', 'tests/**/*.js']
     },
 
     uglify: {
@@ -31,27 +31,58 @@ module.exports = function(grunt) {
       }
     },
 
+    // Start a connect server that serves from our project root, allowing us
+    // to access intern.js's client.html and the Istanbul HTML coverage report
     connect: {
       testclient: {
         options: {
           port: 5000,
-          keepalive: true,
-          open: 'http://localhost:5000/node_modules/intern/client.html?config=tests/intern'
+          keepalive: true
         }
       }
     },
 
-    /*
+    // Run our intern unit tests, but without any tests that require a browser;
+    // also generate junit output and lcov output for our CI services
     intern: {
+      options: {
+        config: 'tests/intern'
+      },
       unittests: {
         options: {
-          config: 'tests/intern'
+          suites: [ 'tests/unit/fusiontables' ],
+          reporters: [{
+            id: 'Pretty'
+          }, {
+            id: 'Lcov'
+          }, {
+            id: 'LcovHtml'
+          }, {
+            id: 'JUnit',
+            filename: 'junit.xml'
+          }],
         }
       }
     },
-    */
 
-    clean: ['dist']
+    // Open the Istanbul coverage report and the Intern browser test client
+    // once grunt-contrib-connect has started the server
+    open: {
+      options: {
+        openOn: 'connect.testclient.listening'
+      },
+      coverage: {
+        path: 'http://localhost:5000/html-report/index.html'
+      },
+      testclient: {
+        path: 'http://localhost:5000/node_modules/intern/client.html?config=tests/intern'
+      }
+    },
+
+    clean: {
+      build: ['dist'],
+      test: ['lcov.info', 'junit.xml', 'html-report']
+    }
 
   });
 
@@ -59,9 +90,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  // grunt.loadNpmTasks('intern');
+  grunt.loadNpmTasks('grunt-open');
+  grunt.loadNpmTasks('intern');
 
-  grunt.registerTask('test', ['connect:testclient']);
-  grunt.registerTask('default', ['jshint', 'clean', 'uglify']);
+  grunt.registerTask('test', ['clean:test', 'jshint', 'intern', 'open', 'connect:testclient']);
+  grunt.registerTask('build', ['clean:build', 'uglify']);
 
 };

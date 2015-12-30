@@ -1,146 +1,19 @@
 define(function (require) {
+
+    'use strict';
+
     var registerSuite = require('intern!object'),
         assert = require('intern/chai!assert'),
         fixtures = require('tests/support/fixtures');
 
     var FusionTables = require('src/fusiontables');
 
-    function ftSetup() {
+    function setupFT () {
         return new FusionTables({
             key: 'YOUR_API_KEY',
             tableId: 'YOUR_TABLE_ID'
         });
     }
-
-
-    // ~ Tests for request handlers ~ //
-
-    registerSuite({
-        name: 'FusionTables.prototype._endpoint_url',
-
-        'builds direct API URLs': function () {
-            var ft = ftSetup();
-
-            assert.strictEqual(
-                ft._endpoint_url('some_endpoint'),
-                'https://www.googleapis.com/fusiontables/v1/some_endpoint'
-            );
-        },
-
-        'substitutes proxy URL when it\'s set': function () {
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID',
-                proxy: 'http://www.some-proxy.com/'
-            });
-
-            assert.strictEqual(
-                ft._endpoint_url('some_endpoint'),
-                'http://www.some-proxy.com/fusiontables/v1/some_endpoint'
-            );
-        },
-
-        'correctly build querystring': function () {
-            var ft = new FusionTables({
-                key: 'YOUR_API_KEY',
-                tableId: 'YOUR_TABLE_ID',
-                proxy: 'http://www.some-proxy.com/'
-            });
-
-            assert.strictEqual(
-                ft._endpoint_url('some_endpoint', {'key': 'value', 'key2': 'value2'}),
-                'http://www.some-proxy.com/fusiontables/v1/some_endpoint?key=value&key2=value2'
-            );
-        }
-    });
-
-    registerSuite({
-        name: 'FusionTables.prototype._json_request',
-
-        'fires success function with JSON data': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            var success = dfd.callback(function (data) {
-                assert.instanceOf(data, Object);
-                assert.strictEqual(data.hello, "world");
-            });
-
-            ft._json_request(
-                'http://www.mocky.io/v2/5681b3ea120000952293a28b',
-                success
-            );
-        },
-
-        'fires error function on network error': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            var error = dfd.callback(function (e) {
-                assert.instanceOf(e, Error);
-            });
-
-            ft._json_request(
-                'http://www.a5681b3ea120000952293a28b.com/',
-                function() {},
-                error
-            );
-        },
-
-        'fires error function on HTTP error': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            var error = dfd.callback(function (e) {
-                assert.instanceOf(e, Error);
-            });
-
-            ft._json_request(
-                'http://www.example.com/404',
-                function() {},
-                error
-            );
-        }
-    });
-
-    registerSuite({
-        name: 'FusionTables.prototype._jsonp_request',
-
-        'fires success function with JSON data': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            var success = dfd.callback(function (data) {
-                assert.instanceOf(data, Object);
-                assert.deepEqual(data, { hello : "world" });
-            });
-
-            ft._jsonp_request(
-                'http://www.mocky.io/v2/5681b3ea120000952293a28b',
-                success
-            );
-        },
-
-        'fires error function on network/HTTP error': function () {
-            var dfd = this.async(5000);
-
-            var ft = ftSetup();
-
-            var error = dfd.callback(function (e) {
-                assert.instanceOf(e, Error);
-            });
-
-            ft._jsonp_request(
-                'http://www.a5681b3ea120000952293a28b.com/',
-                function() {},
-                error
-            );
-        }
-    });
 
 
     // ~ Tests for API response parsers ~ //
@@ -149,7 +22,7 @@ define(function (require) {
         name: 'FusionTables.prototype.rowsParser',
 
         'parse fusiontables#sqlResponse into an array of objects': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             var expected = [{
                 "Inventory": "1251500558",
@@ -169,7 +42,7 @@ define(function (require) {
         },
 
         'return `null` if the response contains no items': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Create fixture with an empty rows array
             var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
@@ -179,7 +52,7 @@ define(function (require) {
         },
 
         'throw an error if passed data is not a fusiontables#sqlresponse': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Deep-clone and alter the fixture to have an incorrect kind
             var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
@@ -195,7 +68,7 @@ define(function (require) {
         name: 'FusionTables.prototype.rowParser',
 
         'parse first row of fusiontables#sqlResponse into an object': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             var expected = {
                 "Inventory": "1251500558",
@@ -207,7 +80,7 @@ define(function (require) {
         },
 
         'return `null` if the response contains no items': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Create fixture with an empty rows array
             var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
@@ -217,7 +90,7 @@ define(function (require) {
         },
 
         'throw an error if passed data is not a fusiontables#sqlresponse': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Deep-clone and alter the fixture to have an incorrect kind
             var fixture = JSON.parse(JSON.stringify(fixtures.sqlresponse));
@@ -233,7 +106,7 @@ define(function (require) {
         name: 'FusionTables.prototype.columnParser',
 
         'parse fusiontables#columnList into an array of column names': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             assert.deepEqual(
                 ft.columnParser(fixtures.columnList),
@@ -242,7 +115,7 @@ define(function (require) {
         },
 
         'throw an error if passed data is not a fusiontables#columnList': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Deep-clone and alter the fixture to have an incorrect kind
             var fixture = JSON.parse(JSON.stringify(fixtures.columnList));
@@ -261,17 +134,17 @@ define(function (require) {
         name: 'FusionTables.prototype.sqlWhere',
 
         'return a valid WHERE statement with the default operator': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(ft.sqlWhere('column', 'value'), 'WHERE column = value');
         },
 
         'return a valid WHERE statement with a custom operator': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(ft.sqlWhere('column', 'value', '>'), 'WHERE column > value');
         },
 
         'throw an error if not passed both column and value': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             assert.throws(ft.sqlWhere, Error);
             assert.throws(function() {
@@ -284,12 +157,12 @@ define(function (require) {
         name: 'FusionTables.prototype.sqlLimit',
 
         'return a valid LIMIT statement': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(ft.sqlLimit(5), 'LIMIT 5');
         },
 
         'throw an error if not passed a valid number': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             assert.throws(ft.sqlLimit, TypeError);
             assert.throws(function() {
@@ -302,7 +175,7 @@ define(function (require) {
         name: 'FusionTables.prototype.sqlSelect',
 
         'auto-append ROWID when cols is passed without it': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(
                 ft.sqlSelect(['column1', 'column2']),
                 'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID'
@@ -310,7 +183,7 @@ define(function (require) {
         },
 
         "don't re-append ROWID when it's passed as part of cols": function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(
                 ft.sqlSelect(['column1', 'column2', 'ROWID']),
                 'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID'
@@ -318,7 +191,7 @@ define(function (require) {
         },
 
         "don't append ROWID when `['*']` is passed in cols": function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             assert.strictEqual(
                 ft.sqlSelect(['*']),
                 'SELECT * FROM YOUR_TABLE_ID'
@@ -326,7 +199,7 @@ define(function (require) {
         },
 
         'use columns from constructor options if none is passed': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             ft.options.columns = ['column1', 'column2'];
 
             assert.strictEqual(
@@ -340,7 +213,7 @@ define(function (require) {
         name: 'FusionTables.prototype.sqlQuery',
 
         'return a simple SELECT query when nothing is passed': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
             ft.options.columns = ['column1'];
 
             assert.deepEqual(ft.sqlQuery(), {
@@ -351,7 +224,7 @@ define(function (require) {
         },
 
         'append a WHERE statement when a `where` object is passed': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             var where = {
                 column: 'column3',
@@ -367,7 +240,7 @@ define(function (require) {
         },
 
         'append a LIMIT statement when a `limit` is passed': function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             assert.deepEqual(ft.sqlQuery(false, 5), {
                 sql: 'SELECT ROWID FROM YOUR_TABLE_ID LIMIT 5',
@@ -377,7 +250,7 @@ define(function (require) {
         },
 
         "used `cols` array if it's passed": function () {
-            var ft = ftSetup();
+            var ft = setupFT();
 
             assert.deepEqual(ft.sqlQuery(false, false, ['column1', 'column2']), {
                 sql: 'SELECT column1, column2, ROWID FROM YOUR_TABLE_ID',
@@ -396,7 +269,7 @@ define(function (require) {
         'return an array of columns': function () {
             var dfd = this.async(5000);
 
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Shim to return our fixture, skipping an actual API request
             ft._jsonp_request = function(url, success) {
@@ -414,7 +287,7 @@ define(function (require) {
         'make an API request to tables/TABLE/columns': function () {
             var dfd = this.async(5000);
 
-            var ft = ftSetup();
+            var ft = setupFT();
 
             // Ensure the proper URL is being requested
             ft._jsonp_request = function(url, success, error) {

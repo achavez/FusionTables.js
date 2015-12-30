@@ -48,7 +48,7 @@ define({
 	// },
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'tests/unit/fusiontables' ],
+	suites: [ 'tests/unit/fusiontables', 'tests/unit/requests-browser' ],
 
 	// Functional test suite(s) to execute against each browser once non-functional tests are completed
 	functionalSuites: [ /* 'myPackage/tests/functional' */ ],
