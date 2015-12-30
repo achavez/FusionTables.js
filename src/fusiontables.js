@@ -26,9 +26,11 @@
             module.exports = factory(require('request'));
         }
         else {
+            /* istanbul ignore next */
             module.exports = factory();
         }
     } else {
+        /* istanbul ignore next */
         root.FusionTables = factory();
     }
 }(this, function (request) {
@@ -91,6 +93,7 @@
      * @param {function} error - a function to call if an error occurs; will
      *   be passed a JavaScript Error object
      */
+    /* istanbul ignore next (this is browser-only and we can't instrument it) */
     FusionTables.prototype._json_request = function (url, success, error) {
         var req = new XMLHttpRequest();
 
@@ -129,6 +132,7 @@
      * @param {function} error - a function to call if an error occurs; will
      *   be passed a JavaScript Error object
      */
+    /* istanbul ignore next (this is browser-only and we can't instrument it) */
     FusionTables.prototype._jsonp_request = function (url, success, error) {
         var complete = false,
             timeout = 3000;
