@@ -65,13 +65,12 @@
      * Return a fully-qualified URL to an API endpoint given the endpoint
      * name
      * @private
-     * @param {string} [endpoint] - the endpoint name (ex: query)
+     * @param {string} endpoint - the endpoint name (ex: query)
      * @param {Object} [params] - an object with key-value pairs to be
      *   converted into a query string and appended to the returned URL
      * @return {string} - the fully-qualified URL for the endpoint
      */
     FusionTables.prototype._endpoint_url = function (endpoint, params) {
-        endpoint = endpoint || '';
         params = params || {};
 
         var url = this.options.uri + 'fusiontables/v1/' + endpoint,
@@ -426,7 +425,31 @@
 
     // ~ Public instance methods ~ //
 
-    // Fetch a single row
+    /**
+     * Each of the public instance methods take two callbacks - one for success
+     * and one for errors. They both take a single parameter:
+     *
+     * @callback FusionTables~successCallback
+     * @param {Object, Array, null} - the data returned from the FusionTables
+     *   API; the exact data passed depends on the instance method and what is
+     *   returned
+     *
+     * @callback FusionTables~errorCallback
+     * @param {Error} - a JavaScript error is passed when an instance methods
+     *   detects any kind of error - HTTP, an API error, JSON parsing error,
+     *   etc.
+     */
+
+    /**
+     * Fetch a single row from the table, specified by the WHERE clause
+     * @param {successCallback} success - passed an object with a single row
+     * @param {errorCallback} error
+     * @param {Object} where - an object representing a WHERE statement to be
+     *   used to fetch our row; ex: {column: 'column name', value: 5}
+     * @param {Object} [options] - any options for this specific request; will
+     *   override any options set during instance construction; takes the same
+     *   options as all other methods
+     */
     FusionTables.prototype.row = function (success, error, where, options) {
         if (typeof where === 'undefined') {
             throw new Error('The where clause is required when calling FusionTables.row');
@@ -447,10 +470,8 @@
 
     /**
      * Get the names of all columns in the table
-     * @param {function} success - a function to call with the results once
-     *   the API response returns, will be called with an Array of column names
-     * @param {function} error - a function that will be called if any error
-     *   occurs; will be passed an Error
+     * @param {successCallback} success - passed an Array of column names
+     * @param {errorCallback} error
      * @param {Object} [options] - any options for this specific request; will
      *   override any options set during instance construction; takes the same
      *   options as all other methods

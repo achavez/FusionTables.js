@@ -23,9 +23,7 @@ define(function (require) {
 
         'throw an error if no tableID is passed': function () {
             assert.throws(function() {
-                new FusionTables({
-                    key: 'k'
-                });
+                new FusionTables();
             }, 'A Fusion Tables Table ID is required.');
         },
 
@@ -464,6 +462,60 @@ define(function (require) {
 
 
     // ~ Tests for public instance methods ~ //
+
+    registerSuite({
+        name: 'FusionTables.prototype.row',
+
+        'return an single row as an object': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            // Shim to return our fixture, skipping an actual API request
+            function mockRequest (url, success) {
+                success(fixtures.sqlresponse);
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Object);
+                var expect = {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"};
+                assert.deepEqual(data, expect);
+            });
+
+            ft.row(success, function() {}, {column: 'column', value: 'value'});
+        },
+
+        'make an API request to v1/query': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var expect = 'https://www.googleapis.com/fusiontables/v1/query?' +
+                         'sql=SELECT%20ROWID%20FROM%20YOUR_TABLE_ID%20WHERE' +
+                         '%20col%20%3D%20val%20LIMIT%201&typed=true&hdrs=fa' +
+                         'lse&key=YOUR_API_KEY';
+
+            // Ensure the proper URL is being requested
+            function mockRequest (url, success) {
+                assert.strictEqual(url, expect);
+                dfd.resolve();
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            ft.row(function() {}, function () {}, {column: 'col', value: 'val'});
+        },
+
+        'throw an error if no where clause is passed': function () {
+            var ft = setupFT();
+
+            assert.throws(function() {
+                ft.row(function() {}, function() {});
+            }, 'The where clause is required');
+        }
+    });
 
     registerSuite({
         name: 'FusionTables.prototype.columns',
