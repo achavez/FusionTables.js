@@ -37,7 +37,14 @@
 
     'use strict';
 
-    // Constructor function
+    /**
+     * Our main class, which represents a single FusionTable and the auth
+     * required to reach it
+     * @constructor
+     * @param {Object} options - an object with at least settings for the table
+     *   ID and API key
+     * @return {FusionTables} - an instance of the FusionTables class
+     */
     function FusionTables(options) {
         this.options = options || {};
         if (!this.options.tableId) {
@@ -58,7 +65,6 @@
      * Return a fully-qualified URL to an API endpoint given the endpoint
      * name
      * @private
-     *
      * @param {string} [endpoint] - the endpoint name (ex: query)
      * @param {Object} [params] - an object with key-value pairs to be
      *   converted into a query string and appended to the returned URL
@@ -86,7 +92,6 @@
      * Make a request for JSON data using XMLHttpRequest; can be used
      * interchangeably with _jsonp_request
      * @private
-     *
      * @param {string} url - the URL to make the request to
      * @param {function} success - a function to pass the parsed response to;
      *   will be passed a JavaScript object with the returned data
@@ -123,9 +128,7 @@
      * Make a request for JSON data using JSONP; can be used interchangeably
      * with _json_request
      * @private
-     *
      * @see http://oscargodson.com/posts/unmasking-jsonp.html
-     *
      * @param {string} url - the URL to make the request to
      * @param {function} success - a function to pass the parsed response to;
      *   will be passed a JavaScript object with the returned data
@@ -175,9 +178,7 @@
      * Make a request for JSON data using the request Node module; this is the
      * server-side version of _json_request
      * @private
-     *
      * @see https://github.com/request/request
-     *
      * @param {string} url - the URL to make the request to
      * @param {function} success - a function to pass the parsed response to;
      *   will be passed a JavaScript object with the returned data
@@ -205,7 +206,6 @@
      * Make a request to the Fusion Tables v1.0 API and pass the results
      * to the passed success and error functions
      * @private
-     *
      * @param {string} endpoint - the FusionTables API endpoint to make the
      *   request to (ex: query)
      * @param {Object} params - an object of attribute-value pairs
@@ -277,7 +277,6 @@
     /**
      * Transform the fusiontables#sqlresponse JSON response into an
      * array of JavaScript objects
-     *
      * @param {Object} data - a fusiontables#sqlResponse API response, parsed
      *   from JSON into a JavaScript object
      * @return {Array, null} - an array of objects, each representing a row (ex:
@@ -306,7 +305,6 @@
     /**
      * Transform the first row in a fusiontables#sqlresponse response into a
      * single JavaScript objects
-     *
      * @param {Object} data - a fusiontables#sqlResponse API response, parsed
      *   from JSON into a JavaScript object
      * @return {Object, null} - an objects, with each item representing a column
@@ -332,10 +330,7 @@
     /**
      * Parse the fusiontables#columnList JSON response into an array of
      * column names
-     * @method
-     *
      * @see https://developers.google.com/fusiontables/docs/v2/reference/column/list
-     *
      * @param {Object} data - a fusiontables#columnList API response, parsed
      *   from JSON into a JavaScript object
      * @param {Array} - an array of column names
@@ -355,8 +350,6 @@
     /**
      * Write a SQL SELECT statement for the passed columns, adding the ROWID if
      * necessary
-     * @method
-     *
      * @param {Array} [cols=this.options.columns] - an array of strings with
      *   the names of the columns to write the SELECT statement for;
      *   ex: ['column1', 'column2']
@@ -373,8 +366,6 @@
 
     /**
      * Write a single SQL WHERE statement based on the passed values
-     * @method
-     *
      * @param {string} column - the column to compare against
      * @param {string, integer} value - the value to use for the comparison
      * @param {string} [operator='='] - a SQL operator ('=', '<', '>', etc.)
@@ -390,8 +381,6 @@
 
     /**
      * Return a SQL LIMIT statement based on the passed integer
-     * @method
-     *
      * @param {int} limit - the row count to build the LIMIT statement from
      * @return {string} - a SQL LIMIT statement, ex: LIMIT 5
      */
@@ -405,10 +394,7 @@
     /**
      * Build the URL parameters, including a valid SQL query, to begin building
      * a request to the FusionTables API
-     * @method
-     *
      * @see https://developers.google.com/fusiontables/docs/v1/reference/query/sql
-     *
      * @param {Object} [where] - an object that will be turned into a where
      *   statement; ex: {column: 'column1', value: 'somevalue', operator: '>'};
      *   where.operator is optional
@@ -461,8 +447,6 @@
 
     /**
      * Get the names of all columns in the table
-     * @method
-     *
      * @param {function} success - a function to call with the results once
      *   the API response returns, will be called with an Array of column names
      * @param {function} error - a function that will be called if any error

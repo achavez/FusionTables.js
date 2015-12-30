@@ -16,6 +16,55 @@ define(function (require) {
     }
 
 
+    // ~ Test the constructor and option parsing ~ //
+
+    registerSuite({
+        name: 'FusionTables constructor',
+
+        'throw an error if no tableID is passed': function () {
+            assert.throws(function() {
+                new FusionTables({
+                    key: 'k'
+                });
+            }, 'A Fusion Tables Table ID is required.');
+        },
+
+        "throw an error if an API key or proxy URL isn't passed": function () {
+            assert.throws(function() {
+                new FusionTables({
+                    tableId: 'table'
+                });
+            }, 'Either an API key or a URL to a proxy that will sign your requests is required.');
+        },
+
+        'custom options are stored when passed': function () {
+            var custom = {
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID',
+                columns: ['column1', 'column2'],
+                uri: 'http://www.example.com/',
+                cache: true
+            };
+
+            var ft = new FusionTables(custom);
+
+            assert.deepEqual(ft.options, custom);
+        },
+
+        'default options are stored if none is passed': function () {
+            var ft = setupFT();
+
+            assert.deepEqual(ft.options, {
+                key: 'YOUR_API_KEY',
+                tableId: 'YOUR_TABLE_ID',
+                columns: [],
+                uri: 'https://www.googleapis.com/',
+                cache: false
+            });
+        }
+    });
+
+
     // ~ Tests for browser request handlers (XMLHttpRequest and JSONP) ~ //
 
     registerSuite({
