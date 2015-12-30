@@ -1,7 +1,9 @@
 FusionTables.js
 =====
 
-[![GitHub version](https://badge.fury.io/gh/achavez%2FFusionTables.js.svg)](http://badge.fury.io/gh/achavez%2FFusionTables.js)
+[![CircleCI branch](https://img.shields.io/circleci/project/achavez/FusionTables.js/version-two.svg)](https://circleci.com/gh/achavez/FusionTables.js)
+[![Codecov branch](https://img.shields.io/codecov/c/github/achavez/FusionTables.js/version-two.svg)](https://codecov.io/github/achavez/FusionTables.js?branch=version-two)
+[![GitHub license](https://img.shields.io/github/license/achavez/FusionTables.js.svg)](LICENSE)
 
 FusionTables.js allows you to retrieve data from the [Google Fusion Tables API v1.0](https://developers.google.com/fusiontables/docs/v1/getting_started) using a few lines of JavaScript.
 
