@@ -429,19 +429,20 @@
      * Each of the public instance methods take two callbacks - one for success
      * and one for errors. They both take a single parameter:
      *
-     * @callback FusionTables~successCallback
+     * @callback successCallback
      * @param {Object, Array, null} - the data returned from the FusionTables
      *   API; the exact data passed depends on the instance method and what is
      *   returned
      *
-     * @callback FusionTables~errorCallback
+     * @callback errorCallback
      * @param {Error} - a JavaScript error is passed when an instance methods
      *   detects any kind of error - HTTP, an API error, JSON parsing error,
      *   etc.
      */
 
     /**
-     * Fetch a single row from the table, specified by the WHERE clause
+     * Fetch a single row from the table, specified by the WHERE clause; API
+     * response is parsed by FusionTables#rowParser by default
      * @param {successCallback} success - passed an object with a single row
      * @param {errorCallback} error
      * @param {Object} where - an object representing a WHERE statement to be
@@ -460,7 +461,17 @@
         this._api_request('query', params, success, error, parser, opts.cache);
     };
 
-    // Fetch all rows in the table
+    /**
+     * Fetch multiple rows from the table, optionally filtered by a WHERE
+     * clause; API response is parsed by FusionTables#rowsParser by default
+     * @param {successCallback} success - passed an array of row objects
+     * @param {errorCallback} error
+     * @param {Object} where - an object representing a WHERE statement to be
+     *   used to filter our table; ex: {column: 'column name', value: 5}
+     * @param {Object} [options] - any options for this specific request; will
+     *   override any options set during instance construction; takes the same
+     *   options as all other methods
+     */
     FusionTables.prototype.rows = function (success, error, where, options) {
         var opts = options || {},
             parser = opts.parser || this.rowsParser,
@@ -469,7 +480,8 @@
     };
 
     /**
-     * Get the names of all columns in the table
+     * Get the names of all columns in the table API response is parsed by
+     * FusionTables#colsParser by default
      * @param {successCallback} success - passed an Array of column names
      * @param {errorCallback} error
      * @param {Object} [options] - any options for this specific request; will

@@ -464,6 +464,55 @@ define(function (require) {
     // ~ Tests for public instance methods ~ //
 
     registerSuite({
+        name: 'FusionTables.prototype.rows',
+
+        'return rows as an array of row objects': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            // Shim to return our fixture, skipping an actual API request
+            function mockRequest (url, success) {
+                success(fixtures.sqlresponse);
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Object);
+                var expect = [
+                    {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"},
+                    {rowid: 201, Product: "Black Shoes", Inventory: "356"},
+                    {rowid: 401, Product: "White Shoes", Inventory: "100"}
+                ];
+                assert.deepEqual(data, expect);
+            });
+
+            ft.rows(success);
+        },
+
+        'make an API request to v1/query': function () {
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var expect = 'https://www.googleapis.com/fusiontables/v1/query?' +
+                         'sql=SELECT%20ROWID%20FROM%20YOUR_TABLE_ID&typed=t' +
+                         'rue&hdrs=false&key=YOUR_API_KEY';
+
+            // Ensure the proper URL is being requested
+            function mockRequest (url, success) {
+                assert.strictEqual(url, expect);
+                dfd.resolve();
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
+
+            ft.rows(function() {});
+        }
+    });
+
+    registerSuite({
         name: 'FusionTables.prototype.row',
 
         'return an single row as an object': function () {
