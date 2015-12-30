@@ -51,11 +51,11 @@ module.exports = function(grunt) {
       unittests: {
         options: {
           suites: [
-            'tests/unit/fusiontables',
-            'tests/unit/requests-node'
+            'tests/unit/fusiontables.js',
+            'tests/unit/fusiontables-node.js'
           ],
           reporters: [{
-            id: 'Pretty'
+            id: 'Console'
           }, {
             id: 'Lcov'
           }, {

@@ -16,6 +16,117 @@ define(function (require) {
     }
 
 
+    // ~ Tests for browser request handlers (XMLHttpRequest and JSONP) ~ //
+
+    registerSuite({
+        name: 'FusionTables.prototype._json_request',
+
+        'fires success function with JSON data': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Object);
+                assert.strictEqual(data.hello, "world");
+            });
+
+            ft._json_request(
+                'http://www.mocky.io/v2/5681b3ea120000952293a28b',
+                success
+            );
+        },
+
+        'fires error function on network error': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var error = dfd.callback(function (e) {
+                assert.instanceOf(e, Error);
+            });
+
+            ft._json_request(
+                'http://www.a5681b3ea120000952293a28b.com/',
+                function() {},
+                error
+            );
+        },
+
+        'fires error function on HTTP error': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var error = dfd.callback(function (e) {
+                assert.instanceOf(e, Error);
+            });
+
+            ft._json_request(
+                'http://www.example.com/404',
+                function() {},
+                error
+            );
+        }
+    });
+
+    registerSuite({
+        name: 'FusionTables.prototype._jsonp_request',
+
+        'fires success function with JSON data': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var success = dfd.callback(function (data) {
+                assert.instanceOf(data, Object);
+                assert.deepEqual(data, { hello : "world" });
+            });
+
+            ft._jsonp_request(
+                'http://www.mocky.io/v2/5681b3ea120000952293a28b',
+                success
+            );
+        },
+
+        'fires error function on network/HTTP error': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var dfd = this.async(5000);
+
+            var ft = setupFT();
+
+            var error = dfd.callback(function (e) {
+                assert.instanceOf(e, Error);
+            });
+
+            ft._jsonp_request(
+                'http://www.a5681b3ea120000952293a28b.com/',
+                function() {},
+                error
+            );
+        }
+    });
+
+
     // ~ Tests for shared logic among request handlers ~ //
 
     registerSuite({
@@ -314,9 +425,11 @@ define(function (require) {
             var ft = setupFT();
 
             // Shim to return our fixture, skipping an actual API request
-            ft._jsonp_request = function(url, success) {
+            function mockRequest (url, success) {
                 success(fixtures.columnList);
-            };
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Array);
@@ -332,13 +445,15 @@ define(function (require) {
             var ft = setupFT();
 
             // Ensure the proper URL is being requested
-            ft._jsonp_request = function(url, success, error) {
+            function mockRequest (url, success) {
                 assert.strictEqual(
                     url,
                     'https://www.googleapis.com/fusiontables/v1/tables/YOUR_TABLE_ID/columns?key=YOUR_API_KEY'
                 );
                 dfd.resolve();
-            };
+            }
+            ft._jsonp_request = mockRequest;
+            ft._node_request = mockRequest;
 
             ft.columns(function() {});
         }
