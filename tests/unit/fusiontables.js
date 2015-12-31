@@ -177,6 +177,130 @@ define(function (require) {
     // ~ Tests for shared logic among request handlers ~ //
 
     registerSuite({
+        name: 'FusionTables.prototype._api_request',
+
+        'use JSONP in browser': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var ft = setupFT();
+
+            function success() {}
+            function error() {}
+
+            ft._jsonp_request = function(url, callback, err) {
+                assert.strictEqual(url, 'https://www.googleapis.com/fusiontables/v1/endpoint?key=YOUR_API_KEY');
+                assert.deepEqual(error, err);
+            };
+
+            ft._api_request('endpoint', {}, success, error);
+        },
+
+        'use JSON in browser when the proxy is enabled': function () {
+            if (typeof window === 'undefined') {
+                this.skip('Browser-only test');
+            }
+
+            var ft = new FusionTables({
+                'tableId': 'YOUR_TABLE_ID',
+                'key': 'YOUR_API_KEY',
+                'proxy': 'http://proxy-url.com/'
+            });
+
+            function success() {}
+            function error() {}
+
+            ft._json_request = function(url, callback, err) {
+                assert.strictEqual(url, 'http://proxy-url.com/fusiontables/v1/endpoint?key=YOUR_API_KEY');
+                assert.deepEqual(err, error);
+            };
+
+            ft._api_request('endpoint', {}, success, error);
+        },
+
+        'catch parser errors, throw them to error callback': function () {
+            var ft = setupFT();
+
+            // Shim request method to pass through an empty object
+            ft._jsonp_request = function(url, success) {
+                success({});
+            };
+
+            var error = new Error('Throwing an error.');
+
+            // Shim the parser to throw an error
+            function parser() {
+                throw error;
+            }
+
+            function success() {}
+
+            // Assert the error is actually passed to the callback
+            function errorCallback(err) {
+                assert.strictEqual(err, error);
+            }
+
+            ft._api_request('endpoint', {}, success, errorCallback, parser);
+        },
+
+        "don't send key if proxy is set": function () {
+            var ft = new FusionTables({
+                'tableId': 'YOUR_TABLE_ID',
+                'proxy': 'http://a-proxy.com/'
+            });
+
+            ft._json_request = function (url, success) {
+                success({});
+            };
+
+            ft._endpoint_url = function (endpoint, params) {
+                assert.notProperty(params, 'key');
+            };
+
+            ft._api_request('endpoint', {}, function () {});
+        },
+
+        'set the cache parameter if set during construction': function () {
+            var ft = new FusionTables({
+                'tableId': 'YOUR_TABLE_ID',
+                'proxy': 'http://a-proxy.com/',
+                'cache': true
+            });
+
+            ft._json_request = function (url, success) {
+                success({});
+            };
+
+            ft._endpoint_url = function (endpoint, params) {
+                assert.isTrue(params.cache);
+                assert.notProperty(params, 'key');
+            };
+
+            ft._api_request('endpoint', {}, function () {});
+        },
+
+        "enable the cache if it's set on the request": function () {
+            var ft = new FusionTables({
+                'tableId': 'YOUR_TABLE_ID',
+                'key': 'YOUR_API_KEY',
+                'proxy': 'http://a-proxy.com/'
+            });
+
+            ft._json_request = function (url, success) {
+                success({});
+            };
+
+            ft._endpoint_url = function (endpoint, params) {
+                assert.isTrue(params.cache);
+                assert.notProperty(params, 'key');
+            };
+
+            ft._api_request('endpoint', {}, function () {}, function () {}, function() {}, true);
+        }
+    });
+
+    registerSuite({
         name: 'FusionTables.prototype._endpoint_url',
 
         'builds direct API URLs': function () {

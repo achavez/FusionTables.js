@@ -82,4 +82,25 @@ define(function (require) {
         }
     });
 
+    registerSuite({
+        name: 'FusionTables.prototype._api_request (Node)',
+
+        'use request module in Node': function () {
+            if (typeof window !== 'undefined') {
+                this.skip('Node-only test');
+            }
+
+            var ft = setupFT();
+
+            function success() {}
+            function error() {}
+
+            ft._node_request = function(url, callback, err) {
+                assert.strictEqual(url, 'https://www.googleapis.com/fusiontables/v1/endpoint?key=YOUR_API_KEY');
+                assert.deepEqual(error, err);
+            };
+
+            ft._api_request('endpoint', {}, success, error);
+        }
+    });
 });

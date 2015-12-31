@@ -10,8 +10,7 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.0",
     "grunt-open": "^0.2.3",
-    "intern": "^3.0.6",
-    "jshint": "^2.5.2"
+    "intern": "^3.0.6"
   },
   "private": false,
   "main": "src/fusiontables.js",

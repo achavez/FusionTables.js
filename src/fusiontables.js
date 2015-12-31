@@ -19,6 +19,7 @@
 // Implement UMD to export AMD and Node modules or, as a last resort,
 // export FusionTables as a global
 (function (root, factory) {
+    /* istanbul ignore next */
     if (typeof define === 'function' && define.amd) {
         define([], factory);
     } else if (typeof module === 'object' && module.exports) {
@@ -26,11 +27,9 @@
             module.exports = factory(require('request'));
         }
         else {
-            /* istanbul ignore next */
             module.exports = factory();
         }
     } else {
-        /* istanbul ignore next */
         root.FusionTables = factory();
     }
 }(this, function (request) {
@@ -229,6 +228,7 @@
         // Hit the proxy cache if the global cache option is
         // set, but allow it to be overridden at the request level
         if ((this.options.cache === true || cache === true) && cache !== false) {
+            /* istanbul ignore next (we can't shim console) */
             if (typeof console !== 'undefined' && console.warn && !this.options.proxy) {
                 console.warn('FusionTables.js: The cache parameter has no effect on direct Fusion Tables API requests.');
             }
@@ -243,6 +243,7 @@
         // Determine which of our HTTP request helpers to use
         var req = this._jsonp_request;
 
+        /* istanbul ignore next (this is browser-only and we can't instrument it) */
         if(this.options.proxy) {
             req = this._json_request;
         }
