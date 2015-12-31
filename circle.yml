@@ -1,3 +1,6 @@
+dependencies:
+  pre:
+    - bower install
 test:
   post:
     - cat lcov.info | ./node_modules/.bin/codecov
