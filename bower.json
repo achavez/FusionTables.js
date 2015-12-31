@@ -1,18 +1,23 @@
 {
   "name": "FusionTables.js",
+  "description": "A JavaScript wrapper for Google Fusion Tables",
   "main": "dist/fusiontables.min.js",
   "version": "1.2.0",
   "authors": [
     "Andrew Chavez <adchavez@gmail.com>"
   ],
-  "description": "A JavaScript wrapper for Google Fusion Tables",
+  "license": "MIT",
   "keywords": [
     "Fusion",
     "Tables",
     "FusionTables"
   ],
-  "license": "MIT",
-  "homepage": "http://code.achavez.io/FusionTables.js",
+  "homepage": "http://code.achavez.io/FusionTables.js/",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
   "ignore": [
     "**/.*",
     "node_modules",
@@ -20,8 +25,8 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "underscore": "~1.6.0",
-    "jquery": "^1.5"
+  "devDependencies": {
+    "backbone": "~1.2.3",
+    "jquery": "~2.1.4"
   }
 }

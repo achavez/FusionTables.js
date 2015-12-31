@@ -1,0 +1,7 @@
+dependencies:
+  pre:
+    - bower install
+test:
+  post:
+    - cat lcov.info | ./node_modules/.bin/codecov
+    - cp junit.xml $CIRCLE_TEST_REPORTS/junit.xml

@@ -1,13 +1,45 @@
 {
-  "name": "FusionTables.js",
+  "name": "fusiontables.js",
   "version": "1.2.0",
   "description": "A JavaScript wrapper for Google Fusion Tables",
   "devDependencies": {
+    "codecov.io": "^0.1.6",
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-connect": "^0.11.2",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.0",
-    "jshint": "^2.5.2"
+    "grunt-open": "^0.2.3",
+    "intern": "^3.0.6"
   },
-  "private": true
+  "private": false,
+  "main": "src/fusiontables.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "request": "^2.67.0"
+  },
+  "scripts": {
+    "test": "grunt runtests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/achavez/FusionTables.js.git"
+  },
+  "keywords": [
+    "Fusion",
+    "Tables",
+    "FusionTables"
+  ],
+  "author": {
+    "name": "Andrew Chavez",
+    "email": "adchavez@gmail.com",
+    "url": "https://achavez.io/"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/achavez/FusionTables.js/issues"
+  },
+  "homepage": "http://code.achavez.io/FusionTables.js/"
 }
