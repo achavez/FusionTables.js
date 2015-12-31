@@ -52,7 +52,8 @@ module.exports = function(grunt) {
         options: {
           suites: [
             'tests/unit/fusiontables.js',
-            'tests/unit/fusiontables-node.js'
+            'tests/unit/fusiontables-node.js',
+            'tests/unit/backbone.fusiontables.js',
           ],
           reporters: [{
             id: 'Console'

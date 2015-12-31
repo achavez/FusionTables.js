@@ -43,12 +43,16 @@ define({
 	// Packages that should be registered with the loader in each testing environment
 	loaderOptions: {
 	  packages: [
-		  { name: 'fusiontables', location: 'src', main: 'fusiontables' }
+		  { name: 'fusiontables', location: 'src', main: 'fusiontables' },
+			{ name: 'backbone.fusiontables', location: 'src', main: 'backbone.fusiontables' },
+			{ name: 'jquery', location: 'tests/support/mocks', main: 'jquery' },
+			{ name: 'backbone', location: 'bower_components/backbone', main: 'backbone' },
+			{ name: 'underscore', location: 'bower_components/underscore', main: 'underscore' }
 		]
 	},
 
 	// Non-functional test suite(s) to run in each browser
-	suites: [ 'tests/unit/fusiontables' ],
+	suites: [ 'tests/unit/fusiontables', 'tests/unit/backbone.fusiontables' ],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^(?:tests|node_modules|bower_components)\//

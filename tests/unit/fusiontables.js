@@ -348,19 +348,7 @@ define(function (require) {
         'parse fusiontables#sqlResponse into an array of objects': function () {
             var ft = setupFT();
 
-            var expected = [{
-                "Inventory": "1251500558",
-                "Product": "Amber Bead",
-                "rowid": 1
-            }, {
-                "Inventory": "356",
-                "Product": "Black Shoes",
-                "rowid": 201
-            }, {
-                "Inventory": "100",
-                "Product": "White Shoes",
-                "rowid": 401
-            }];
+            var expected = fixtures.sqlResponseParsed;
 
             assert.deepEqual(ft.rowsParser(fixtures.sqlresponse), expected);
         },
@@ -394,11 +382,7 @@ define(function (require) {
         'parse first row of fusiontables#sqlResponse into an object': function () {
             var ft = setupFT();
 
-            var expected = {
-                "Inventory": "1251500558",
-                "Product": "Amber Bead",
-                "rowid": 1
-            };
+            var expected = fixtures.sqlResponseParsed[0];
 
             assert.deepEqual(ft.rowParser(fixtures.sqlresponse), expected);
         },
@@ -604,12 +588,7 @@ define(function (require) {
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Object);
-                var expect = [
-                    {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"},
-                    {rowid: 201, Product: "Black Shoes", Inventory: "356"},
-                    {rowid: 401, Product: "White Shoes", Inventory: "100"}
-                ];
-                assert.deepEqual(data, expect);
+                assert.deepEqual(data, fixtures.sqlResponseParsed);
             });
 
             ft.rows(success);
@@ -653,8 +632,7 @@ define(function (require) {
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Object);
-                var expect = {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"};
-                assert.deepEqual(data, expect);
+                assert.deepEqual(data, fixtures.sqlResponseParsed[0]);
             });
 
             ft.row(success, function() {}, {column: 'column', value: 'value'});
@@ -750,12 +728,7 @@ define(function (require) {
 
             var success = dfd.callback(function (data) {
                 assert.instanceOf(data, Array);
-                var expect = [
-                    {rowid: 1, Product: "Amber Bead", Inventory: "1251500558"},
-                    {rowid: 201, Product: "Black Shoes", Inventory: "356"},
-                    {rowid: 401, Product: "White Shoes", Inventory: "100"}
-                ];
-                assert.deepEqual(data, expect);
+                assert.deepEqual(data, fixtures.sqlResponseParsed);
             });
 
             ft.query(success);
